@@ -8,7 +8,7 @@ entity seletor_produto is
         codigo_entrada  : in  std_logic_vector(3 downto 0); -- SW[3:0]
         botao_cancelar   : in  std_logic;                    -- KEY1 
         --saída
-        codigo_produto  : out std_logic_vector(3 downto 0) 
+        saida  : out std_logic_vector(3 downto 0) 
     );
 end entity seletor_produto;
 
@@ -26,7 +26,7 @@ begin
         if rising_edge(botao_cancelar) then
             estado_cancela <= '1';
             estado_travado <= '0'; -- destrava o sistema
-            codigo_produto <= codigo_entrada; --mostra o valor atual dos switches
+            saida <= codigo_entrada; --mostra o valor atual dos switches
         end if;
     end process;
 
@@ -44,9 +44,9 @@ begin
     process(estado_travado, codigo_entrada, valor_salvo)
     begin
         if (estado_travado = '1') then
-            codigo_produto <= valor_salvo;  --mostra a cópia salva
+            saida <= valor_salvo;  --mostra a cópia salva
         else
-            codigo_produto <= codigo_entrada; --mostra os switches ao vivo
+            saida <= codigo_entrada; --mostra os switches ao vivo
         end if;
     end process;
 

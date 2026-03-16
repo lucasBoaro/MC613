@@ -22,11 +22,12 @@ architecture estrutural of VendingMachine is
 	
 begin
 
-	instanciaSelProd: entity work.SelecionarProduto
+	instanciaSelProd: entity work.seletor_produto
 		port map (
-			IN_BIN => SW(3 downto 0),
-			OUT_BIN => fioSaidaSelProd,
-			KEY => KEY(0)
+			codigo_entrada => SW(3 downto 0),
+			saida => fioSaidaSelProd,
+			botao_confirmar => KEY(0),
+			botao_cancelar => KEY(1)
 		);
 		
 		
