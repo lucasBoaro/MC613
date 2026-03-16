@@ -24,10 +24,10 @@ begin
 
 	instanciaSelProd: entity work.seletor_produto
 		port map (
-			codigo_entrada => SW(3 downto 0),
-			saida => fioSaidaSelProd,
-			botao_confirmar => KEY(0),
-			botao_cancelar => KEY(1)
+			BIN_PRODUTO => SW(3 downto 0),
+			BIN_OUT => fioSaidaSelProd,
+			KEY_CONFIRM => KEY(0),
+			KEY_CANCEL => KEY(1)
 		);
 		
 		
