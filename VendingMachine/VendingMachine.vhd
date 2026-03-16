@@ -27,7 +27,6 @@ begin
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioSaidaSelProd,
 			KEY_CONFIRM => KEY(0),
-			KEY_CANCEL => KEY(1)
 		);
 		
 		

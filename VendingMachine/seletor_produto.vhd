@@ -5,28 +5,15 @@ entity seletor_produto is
     port (
         KEY_CONFIRM: in  std_logic;                    
         BIN_PRODUTO: in  std_logic_vector(3 downto 0); 
-        KEY_CANCEL: in  std_logic;                     
         BIN_OUT: out std_logic_vector(3 downto 0) 
     );
 end entity seletor_produto;
 
 architecture behavior of seletor_produto is
     -- Sinais internos (nossas memórias)
-    signal estado_cancela : std_logic := '0'; -- '0' = não cancelado, '1' = cancelado
     signal estado_travado : std_logic := '0'; 
     signal valor_salvo    : std_logic_vector(3 downto 0); 
 begin
-
-    
-    -- process para lidar com o botão de cancelar
-    process(KEY_CANCEL)
-    begin
-        if rising_edge(KEY_CANCEL) then
-            estado_cancela <= '1';
-            estado_travado <= '0'; -- destrava o sistema
-            saida <= BIN_PRODUTO; --mostra o valor atual dos switches
-        end if;
-    end process;
 
     -- process para lidar com o botão de confirmar
     process(KEY_CONFIRM)
