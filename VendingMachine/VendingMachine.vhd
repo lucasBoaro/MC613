@@ -26,7 +26,7 @@ begin
 		port map (
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioSaidaSelProd,
-			KEY_CONFIRM => KEY(0),
+			KEY_CONFIRM => KEY(0)
 		);
 		
 		
@@ -36,5 +36,4 @@ begin
 			HEX => HEX5
 		);
 			
-		
-		
+end architecture;		

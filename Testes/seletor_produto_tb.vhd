@@ -48,8 +48,8 @@ begin
 		  
 		  write(line_out, string'("Teste clicando e não soltando "));
 		  writeline(output, line_out);		  
-		  test_key <= STD_LOGIC(0);
-		  wait for 5 ns.;
+		  test_key <= '0';
+		  wait for 5 ns;
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar
@@ -62,8 +62,8 @@ begin
 		
 		  write(line_out, string'("Teste depois de soltar "));
 		  writeline(output, line_out);
-		  test_key <= STD_LOGIC(1);
-		  wait for 5 ns.;
+		  test_key <= '1';
+		  wait for 5 ns;
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar
@@ -76,9 +76,9 @@ begin
 		  
 		  write(line_out, string'("Teste clicar de novo"));
 		  writeline(output, line_out);
-		  test_key <= STD_LOGIC(0);
-		  wait for 5 ns.;
-		  test_key <= STD_LOGIC(1);
+		  test_key <= '0';
+		  wait for 5 ns;
+		  test_key <= '1';
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar

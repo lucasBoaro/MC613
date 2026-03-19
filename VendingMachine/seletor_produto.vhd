@@ -19,7 +19,7 @@ begin
     process(KEY_CONFIRM)
     begin
         -- rising_edge = momento que solta o botão (0 -> 1)
-        if rising_edge(KEY_CONFIRM) then 
+        if rising_edge(KEY_CONFIRM) and (estado_travado = '0') then 
             estado_travado <= '1';            --trava o sistema
             valor_salvo    <= BIN_PRODUTO; -- pega a cópia do valor atual dos switches
         end if;
@@ -29,9 +29,9 @@ begin
     process(estado_travado, BIN_PRODUTO, valor_salvo)
     begin
         if (estado_travado = '1') then
-            saida <= valor_salvo;  --mostra a cópia salva
+            BIN_OUT <= valor_salvo;  --mostra a cópia salva
         else
-            saida <= BIN_PRODUTO; --mostra os switches ao vivo
+            BIN_OUT <= BIN_PRODUTO; --mostra os switches ao vivo
         end if;
     end process;
 
