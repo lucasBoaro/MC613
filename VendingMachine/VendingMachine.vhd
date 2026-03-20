@@ -19,6 +19,12 @@ end entity;
 
 architecture estrutural of VendingMachine is
 	signal fioSaidaSelProd : std_logic_vector(3 downto 0);
+	signal fioBCD : std_logic_vector(15 downto 0);
+	signal fioHex3 : std_logic_vector(3 downto 0);
+	signal fioHex2 : std_logic_vector(3 downto 0);
+	signal fioHex1 : std_logic_vector(3 downto 0);
+	signal fioHex0 : std_logic_vector(3 downto 0);
+	
 	
 begin
 
@@ -29,11 +35,44 @@ begin
 			KEY_CONFIRM => KEY(0)
 		);
 		
-		
+------------------ instancias bin2hex-----------------------		
 	instanciaBin2Hex: entity work.bin2hex
 		port map (
 			BIN => fioSaidaSelProd,
 			HEX => HEX5
 		);
-			
+		
+		instanciaHex3: entity work.bin2hex
+		port map (
+			BIN => fioBDC(15 downto 12)
+			HEX => HEX3
+		)
+		
+	instanciaHex2: entity work.bin2hex
+		port map (
+			BIN => fioBDC(11 downto 8)
+			HEX => HEX2
+		)
+		
+	instanciaHex1: entity work.bin2hex
+		port map (
+			BIN => fioBDC(7 downto 4)
+			HEX => HEX1
+		)
+
+	instanciaHex0: entity work.bin2hex
+		port map (
+			BIN => fioBDC(3 downto 0)
+			HEX => HEX02
+		)
+--------------------------------------------------------------
+		
+	instanciaBin11toBcd: entity work.bin11_to_bcd4
+		port map (
+			bin => 
+			bcd => fioBCD
+		);
+		
+		
+		
 end architecture;		
