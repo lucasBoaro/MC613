@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 entity gerenciadorProduto is
     port(
+        CLK : in std_logic;
         BIN_PRODUTO     : in  std_logic_vector(3 downto 0); -- No top-level, temos que fazer essa entrada receber um signal. Se fizermos conexão direta com a saída do selecionar produto, ele vai ignorar a troca de estado
         BIN_VALOR_IN    : in  std_logic_vector(7 downto 0);
         KEY_CANCELA     : in  std_logic;
@@ -18,6 +19,10 @@ architecture behavior of gerenciadorProduto is
     signal valorProduto    : std_logic_vector(10 downto 0);
     signal primeiroAvancar : std_logic := '1'; --Flag para indicar que é o primeiro ciclo desse estado
     signal valorAtual      : std_logic_vector(10 downto 0) := (others => '0');
+    signal vendaFinalizada : std_logic := '0';
+    signal devolverTroco   : std_logic := '0';
+    signal contador        : integer range 0 to 50000000 := 0;
+    signal confirm_antigo  : std_logic := '0';
 
 begin
 
@@ -42,46 +47,75 @@ begin
             std_logic_vector(to_unsigned(0, 11))   when others; 
     
     BIN_VALOR_OUT <= valorProduto when primeiroAvancar = '1' else valorAtual; --Essa linha roda em paralelo, mostra do valor do produto desejado. Deixa o valor fixo quando aperta confirmar.
+    BIN_FIM_VENDA <= vendaFinalizada;
+    BIN_TROCO <= devolverTroco;
 
-    process(KEY_CONFIRM, KEY_CANCELA)
-            variable v_in_extendido : unsigned(10 downto 0);
-            variable v_atual  : unsigned(10 downto 0);
-            variable v_temp   : unsigned(10 downto 0);
-        begin
-            if rising_edge(KEY_CANCELA) then
-                BIN_TROCO <= '0';
-                BIN_FIM_VENDA <= '0';
-                primeiroAvancar <= '1';
-                valorAtual <= (others => '0');
-                
-           elsif rising_edge(KEY_CONFIRM) then
-                if (primeiroAvancar = '1') then
-                    valorAtual <= valorProduto;
-                    primeiroAvancar <= '0';
-                    BIN_TROCO <= '0';
-                    BIN_FIM_VENDA <= '0';
+    process(CLK, KEY_CANCELA)
+        variable v_in_extendido : unsigned(10 downto 0);
+        variable v_atual  : unsigned(10 downto 0);
+        variable v_temp   : unsigned(10 downto 0);
+    begin
+        -- Reset Assíncrono
+        if KEY_CANCELA = '1' then
+            devolverTroco <= '0';
+            vendaFinalizada <= '0';
+            primeiroAvancar <= '1';
+            valorAtual <= (others => '0');
+            contador <= 0;
+            confirm_antigo <= '0';
+            
+
+        elsif rising_edge(CLK) then
+            -- Guarda o estado atual do botão para comparar no próximo ciclo
+            confirm_antigo <= KEY_CONFIRM;
+
+            -- Fim da venda, inicia o timer de 1 segundo
+            if (vendaFinalizada = '1') then
+                if (contador < 50000000) then
+                    contador <= contador + 1; -- Vai contando...
                 else
-                    v_in_extendido := resize(unsigned(BIN_VALOR_IN), 11);
-                    v_atual  := unsigned(valorAtual);
-
-                    if (v_in_extendido >= v_atual) then
-                        v_temp := v_in_extendido - v_atual;
-                        
-                        valorAtual <= std_logic_vector(v_temp);
-                        BIN_FIM_VENDA <= '1';
-                        
-                        if (v_in_extendido > v_atual) then
-                            BIN_TROCO <= '1';
-                        else
-                            BIN_TROCO <= '0';
-                        end if;
-                    else
-                        v_temp := v_atual - v_in_extendido;
-                        valorAtual <= std_logic_vector(v_temp);
-                        BIN_TROCO <= '0';
-                    end if;
+                    -- Auto-reset após 1 segundo
+                    devolverTroco <= '0';
+                    vendaFinalizada <= '0';
+                    primeiroAvancar <= '1';
+                    valorAtual <= (others => '0');
+                    contador <= 0; -- Zera o cronômetro para a próxima venda
                 end if;
+
+            else
+                -- Só faz a conta se o botão Confirmar for '1' agora, mas era '0' 1 ciclo atrás. Para evitar que segurar o botão execute várias vezes a mesma coisa.
+                if (KEY_CONFIRM = '1' and confirm_antigo = '0') then
+                    
+                    if (primeiroAvancar = '1') then
+                        valorAtual <= valorProduto;
+                        primeiroAvancar <= '0';
+                        devolverTroco <= '0';
+                        vendaFinalizada <= '0';
+                    else
+                        v_in_extendido := resize(unsigned(BIN_VALOR_IN), 11);
+                        v_atual  := unsigned(valorAtual);
+
+                        if (v_in_extendido >= v_atual) then
+                            v_temp := v_in_extendido - v_atual;
+                            
+                            valorAtual <= std_logic_vector(v_temp);
+                            vendaFinalizada <= '1'; 
+                            
+                            if (v_in_extendido > v_atual) then
+                                devolverTroco <= '1';
+                            else
+                                devolverTroco <= '0';
+                            end if;
+                        else
+                            v_temp := v_atual - v_in_extendido;
+                            valorAtual <= std_logic_vector(v_temp);
+                            devolverTroco <= '0';
+                        end if;
+                    end if;
+                    
+                end if; 
             end if;
-        end process;
+        end if;
+    end process;
 
 end behavior;
