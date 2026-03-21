@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 entity VendingMachine is
 	port (
+		CLOCK_50 : in std_logic
 		SW : in std_logic_vector(9 downto 0);
 		KEY: in std_logic_vector(1 downto 0);
 		
@@ -18,17 +19,17 @@ entity VendingMachine is
 end entity;
 
 architecture estrutural of VendingMachine is
-	signal fioSaidaSelProd : std_logic_vector(3 downto 0);
+	signal fioNumProduto : std_logic_vector(3 downto 0);
 	signal fioBCD : std_logic_vector(15 downto 0);
-	signal fioValorDoProdBin : std_logic_vector(7 downto 0);
-	signal fioValorAcumuladoBin : std_logic_vector(10 downto 0);
+	signal fioValorInserido : std_logic_vector(7 downto 0);
+	signal fioValorRestanteParaCompra : std_logic_vector(10 downto 0);
 	
 begin
 
 	instanciaSelProd: entity work.seletor_produto
 		port map (
 			BIN_PRODUTO => SW(3 downto 0),
-			BIN_OUT => fioSaidaSelProd,
+			BIN_OUT => fioNumProduto,
 			KEY_CONFIRM => KEY(0)
 		);
 
@@ -36,21 +37,25 @@ begin
 		port map(
 			KEY_CONFIRM => KEY(0),
 			BIN_VALOR => SW(9 downto 4),
-			BIN_SWITCH => fioValorDoProdBin
+			BIN_SWITCH => fioValorInserido
 		);
 
 	instanciaGerenciador: entity work.gerenciadorProdutos
 		port map(
-			codigoProduto => fioSaidaSelProd,
-        	valorInserido => fioValorDoProdBin,
-        	botaoAvancar  => KEY(0),
-        	valorAtual    => fioValorAcumuladoBin
+			CLOCK => CLOCK_50,
+			BIN_PRODUTO => fioNumProduto,
+			BIN_VALOR_IN => fioValorInserido,
+			KEY_CANCELA => KEY(1),
+			KEY_CONFIRM => KEY(0),
+			BIN_VALOR_OUT => fioValorRestanteParaCompra,
+			BIN_TROCO => LEDR(1),
+			BIN_FIM_VENDA => LEDR(0)
 		);
 		
 ------------------ instancias bin2hex-----------------------		
 	instanciaBin2Hex: entity work.bin2hex
 		port map (
-			BIN => fioSaidaSelProd,
+			BIN => fioNumProduto,
 			HEX => HEX5
 		);
 		
@@ -81,7 +86,7 @@ begin
 		
 	instanciaBin11toBcd: entity work.bin11_to_bcd4
 		port map (
-			bin => fioValorAcumuladoBin,
+			bin => fioValorRestanteParaCompra,
 			bcd => fioBCD
 		);
 		
