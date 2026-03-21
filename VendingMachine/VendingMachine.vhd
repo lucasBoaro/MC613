@@ -20,11 +20,8 @@ end entity;
 architecture estrutural of VendingMachine is
 	signal fioSaidaSelProd : std_logic_vector(3 downto 0);
 	signal fioBCD : std_logic_vector(15 downto 0);
-	signal fioHex3 : std_logic_vector(3 downto 0);
-	signal fioHex2 : std_logic_vector(3 downto 0);
-	signal fioHex1 : std_logic_vector(3 downto 0);
-	signal fioHex0 : std_logic_vector(3 downto 0);
-	
+	signal fioValorDoProdBin : std_logic_vector(7 downto 0);
+	signal fioValorAcumuladoBin : std_logic_vector(10 downto 0);
 	
 begin
 
@@ -33,6 +30,21 @@ begin
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioSaidaSelProd,
 			KEY_CONFIRM => KEY(0)
+		);
+
+	instanciaSelValor: entity work.selecionarValor
+		port map(
+			KEY_CONFIRM => KEY(0),
+			BIN_VALOR => SW(9 downto 4),
+			BIN_SWITCH => fioValorDoProdBin
+		);
+
+	instanciaGerenciador: entity work.gerenciadorProdutos
+		port map(
+			codigoProduto => fioSaidaSelProd,
+        	valorInserido => fioValorDoProdBin,
+        	botaoAvancar  => KEY(0),
+        	valorAtual    => fioValorAcumuladoBin
 		);
 		
 ------------------ instancias bin2hex-----------------------		
@@ -44,35 +56,33 @@ begin
 		
 		instanciaHex3: entity work.bin2hex
 		port map (
-			BIN => fioBDC(15 downto 12)
+			BIN => fioBCD(15 downto 12),
 			HEX => HEX3
-		)
+		);
 		
 	instanciaHex2: entity work.bin2hex
 		port map (
-			BIN => fioBDC(11 downto 8)
+			BIN => fioBCD(11 downto 8),
 			HEX => HEX2
-		)
+		);
 		
 	instanciaHex1: entity work.bin2hex
 		port map (
-			BIN => fioBDC(7 downto 4)
+			BIN => fioBCD(7 downto 4),
 			HEX => HEX1
-		)
+		);
 
 	instanciaHex0: entity work.bin2hex
 		port map (
-			BIN => fioBDC(3 downto 0)
-			HEX => HEX02
-		)
+			BIN => fioBCD(3 downto 0),
+			HEX => HEX0
+		);
 --------------------------------------------------------------
 		
 	instanciaBin11toBcd: entity work.bin11_to_bcd4
 		port map (
-			bin => 
+			bin => fioValorAcumuladoBin,
 			bcd => fioBCD
 		);
-		
-		
 		
 end architecture;		
