@@ -37,8 +37,8 @@ begin
 	instanciaSelValor: entity work.selecionarValor
 		port map(
 			KEY_CONFIRM => KEY(0),
-			BIN_VALOR => SW(9 downto 4),
-			BIN_SWITCH => fioValorInserido
+			BIN_SWITCH => SW(9 downto 4),
+			BIN_VALOR => fioValorInserido
 		);
 
 	instanciaGerenciador: entity work.gerenciadorProdutos
