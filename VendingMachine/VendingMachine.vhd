@@ -31,6 +31,7 @@ begin
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioNumProduto,
 			KEY_CONFIRM => KEY(0)
+			KEY_CANCELA => KEY(1)
 		);
 
 	instanciaSelValor: entity work.selecionarValor
