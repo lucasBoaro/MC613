@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity VendingMachine is
 	port (
-		CLOCK_50 : in std_logic
+		CLOCK_50 : in std_logic;
 		SW : in std_logic_vector(9 downto 0);
 		KEY: in std_logic_vector(1 downto 0);
 		
@@ -30,20 +30,19 @@ begin
 		port map (
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioNumProduto,
-			KEY_CONFIRM => KEY(0)
+			KEY_CONFIRM => KEY(0),
 			KEY_CANCELA => KEY(1)
 		);
 
 	instanciaSelValor: entity work.selecionarValor
 		port map(
-			KEY_CONFIRM => KEY(0),
 			BIN_SWITCH => SW(9 downto 4),
 			BIN_VALOR => fioValorInserido
 		);
 
-	instanciaGerenciador: entity work.gerenciadorProdutos
+	instanciaGerenciador: entity work.gerenciadorProduto
 		port map(
-			CLOCK => CLOCK_50,
+			CLK => CLOCK_50,
 			BIN_PRODUTO => fioNumProduto,
 			BIN_VALOR_IN => fioValorInserido,
 			KEY_CANCELA => KEY(1),
