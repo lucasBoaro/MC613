@@ -6,6 +6,7 @@ entity seletor_produto is
         KEY_CONFIRM: in  std_logic;    
         KEY_CANCELA: in std_logic;                
         BIN_PRODUTO: in  std_logic_vector(3 downto 0); 
+        BIN_FIM_VENDA: in std_logic;
         BIN_OUT: out std_logic_vector(3 downto 0)        --saída do código do produto(só sai se tiver o botão de confirmar)
     );
 end entity seletor_produto;
@@ -17,9 +18,9 @@ architecture behavior of seletor_produto is
 begin
 
     -- process para lidar com o botão de confirmar
-    process(KEY_CONFIRM, KEY_CANCELA)
+    process(KEY_CONFIRM, KEY_CANCELA, BIN_FIM_VENDA)
     begin
-        if(KEY_CANCELA = '1') then  --volta ao estado inicial
+        if(KEY_CANCELA = '1') or (BIN_FIM_VENDA = '1') then  --volta ao estado inicial
             estado_travado <= '0';
 
         -- rising_edge = momento que solta o botão (0 -> 1)

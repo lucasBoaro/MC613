@@ -11,7 +11,8 @@ entity gerenciadorProduto is
         KEY_CONFIRM     : in  std_logic;
         BIN_VALOR_OUT   : out std_logic_vector(10 downto 0);
         BIN_TROCO       : out std_logic;
-        BIN_FIM_VENDA   : out std_logic
+        BIN_FIM_VENDA   : out std_logic;
+        CMD_DESTRAVAR_SEL_PROD: out std_logic
     );
 end gerenciadorProduto;
 
@@ -53,11 +54,11 @@ begin
             std_logic_vector(to_unsigned(800, 11)) when "1111", 
             std_logic_vector(to_unsigned(0, 11))   when others; 
             
-    -- Saídas dos LEDs corrigidas
+    -- Saídas dos LEDs
     BIN_FIM_VENDA <= compra_sucesso; -- LEDR0 só acende se a compra deu certo
     BIN_TROCO     <= troco_ativo;    -- LEDR1 acende no troco ou devolução
 
-    -- Mux do Display (Garante que a tela mostre o que o enunciado pede)
+    -- Mux do Display (Define as saídas dependendo de qual estado está)
     process(timer_ativo, compra_sucesso, em_pagamento, saldo_inserido, valorProduto)
         variable v_prod : unsigned(10 downto 0);
     begin
@@ -84,18 +85,21 @@ begin
         if rising_edge(CLK) then
             confirm_antigo <= KEY_CONFIRM;
             cancela_antigo <= KEY_CANCELA;
+            CMD_DESTRAVAR_SEL_PROD <= '0';
 
-            -- 1. Timer de 1 segundo
+            -- Timer de 1 segundo (ativado quando clica em cancelar ou quando foi inserido valor suficiente para realizar a compra)
             if timer_ativo = '1' then
                 if contador < 50000000 then -- ATENÇÃO: Mude para 5 ao rodar no ModelSim!
                     contador <= contador + 1; 
                 else
+                    -- depois do contador, reinicia todas as flags de estado para reiniciar a máquina de vendas
                     timer_ativo <= '0';
                     compra_sucesso <= '0';
                     troco_ativo <= '0';
                     saldo_inserido <= (others => '0');
                     em_pagamento <= '0';
                     contador <= 0; 
+                    CMD_DESTRAVAR_SEL_PROD <= '1';
                 end if;
 
             else

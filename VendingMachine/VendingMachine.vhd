@@ -25,6 +25,7 @@ architecture estrutural of VendingMachine is
 	signal fioBCD : std_logic_vector(15 downto 0);								-- fio que passa um valor em BCD
 	signal fioValorInserido : std_logic_vector(7 downto 0);						-- fio que passa o valor que foi inserido em binário
 	signal fioValorRestanteParaCompra : std_logic_vector(10 downto 0);			-- fio que passa o valor faltante para a compra ou o valor do troco
+	signal fioDestravarSelProd : std_logic;
 	
 begin
 
@@ -34,7 +35,8 @@ begin
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioNumProduto,
 			KEY_CONFIRM => KEY(0),
-			KEY_CANCELA => KEY(1)
+			KEY_CANCELA => KEY(1),
+			BIN_FIM_VENDA => fioDestravarSelProd
 		);
 
 	instanciaSelValor: entity work.selecionarValor
@@ -54,7 +56,8 @@ begin
 			KEY_CONFIRM => KEY(0),
 			BIN_VALOR_OUT => fioValorRestanteParaCompra,
 			BIN_TROCO => LEDR(1),
-			BIN_FIM_VENDA => LEDR(0)
+			BIN_FIM_VENDA => LEDR(0),
+			CMD_DESTRAVAR_SEL_PROD => fioDestravarSelProd
 		);
 		
 ------------------ instancias bin2hex-----------------------		
