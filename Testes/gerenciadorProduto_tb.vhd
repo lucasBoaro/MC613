@@ -1,14 +1,14 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use STD.TEXTIO.ALL;
+use IEEE.STD_LOGIC_TEXTIO.ALL;
 
 entity gerenciadorProduto_tb is
--- Entidade de testbench é sempre vazia
 end gerenciadorProduto_tb;
 
 architecture behavior of gerenciadorProduto_tb is
 
-    -- 1. Declaração do Componente a ser testado
     component gerenciadorProduto
         port(
             CLK             : in  std_logic;
@@ -22,7 +22,6 @@ architecture behavior of gerenciadorProduto_tb is
         );
     end component;
 
-    -- 2. Sinais internos para conectar ao componente
     signal tb_CLK           : std_logic := '0';
     signal tb_BIN_PRODUTO   : std_logic_vector(3 downto 0) := (others => '0');
     signal tb_BIN_VALOR_IN  : std_logic_vector(7 downto 0) := (others => '0');
@@ -32,12 +31,11 @@ architecture behavior of gerenciadorProduto_tb is
     signal tb_BIN_TROCO     : std_logic;
     signal tb_BIN_FIM_VENDA : std_logic;
 
-    -- Período do clock (50 MHz = 20 ns)
-    constant clk_period : time := 20 ns;
+    signal sim_finished     : boolean := false; 
+    constant clk_period     : time := 20 ns;
 
 begin
 
-    -- 3. Instanciando o Componente (Unit Under Test - UUT)
     UUT: gerenciadorProduto port map (
         CLK           => tb_CLK,
         BIN_PRODUTO   => tb_BIN_PRODUTO,
@@ -49,106 +47,88 @@ begin
         BIN_FIM_VENDA => tb_BIN_FIM_VENDA
     );
 
-    -- 4. Processo Gerador de Clock
     clk_process : process
     begin
-        tb_CLK <= '0';
-        wait for clk_period/2;
-        tb_CLK <= '1';
-        wait for clk_period/2;
-    end process;
-
-    -- 5. Processo de Estímulos (A "Historinha" do usuário)
-    stim_proc: process
-    begin
-        -- INÍCIO: Dá um reset inicial para garantir que tudo comece zerado
-        tb_KEY_CANCELA <= '1';
-        wait for 40 ns;
-        tb_KEY_CANCELA <= '0';
-        wait for 40 ns;
-
-        -------------------------------------------------------------
-        -- CENÁRIO 1: Compra exata (Sem Troco)
-        -- Escolhendo Produto 1 ("0001" -> Valor: 300)
-        -------------------------------------------------------------
-        tb_BIN_PRODUTO <= "0001"; 
-        wait for 40 ns;
-        
-        -- Aperta Confirmar para escolher o produto
-        tb_KEY_CONFIRM <= '1';
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '0';
-        wait for 40 ns;
-        
-        -- Insere 150 de dinheiro
-        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(150, 8));
-        wait for 20 ns;
-        -- Aperta Confirmar para adicionar o dinheiro
-        tb_KEY_CONFIRM <= '1';
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '0';
-        wait for 40 ns; -- Neste momento a tela deve mostrar que faltam 150
-
-        -- Insere mais 150 de dinheiro
-        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(150, 8));
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '1';
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '0';
-        
-        -- Espera para ver a venda finalizada (FIM_VENDA = 1, TROCO = 0)
-        wait for 100 ns; 
-        
-        -- Dá um reset manual (KEY_CANCELA) para ir direto para o próximo teste
-        -- (Isso evita termos que simular os 50 milhões de ciclos do seu timer de 1 segundo)
-        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
-
-        -------------------------------------------------------------
-        -- CENÁRIO 2: Compra com Troco
-        -- Escolhendo Produto 2 ("0010" -> Valor: 175)
-        -------------------------------------------------------------
-        tb_BIN_PRODUTO <= "0010";
-        wait for 40 ns;
-        
-        -- Aperta Confirmar para escolher o produto
-        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
-        
-        -- Cliente insere 200 de dinheiro de uma vez
-        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8));
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0';
-        
-        -- Espera para ver a venda finalizada (FIM_VENDA = 1, TROCO = 1)
-        wait for 100 ns;
-        
-        -- Reset manual para o próximo teste
-        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
-
-        -------------------------------------------------------------
-        -- CENÁRIO 3: Desistência no meio da operação (Cancela)
-        -- Escolhendo Produto 4 ("0100" -> Valor: 225)
-        -------------------------------------------------------------
-        tb_BIN_PRODUTO <= "0100";
-        wait for 40 ns;
-        
-        -- Confirma o produto
-        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
-        
-        -- Cliente insere apenas 100 de dinheiro
-        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8));
-        wait for 20 ns;
-        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 100 ns;
-        -- Neste momento faltariam 125 para pagar...
-        
-        -- Mas o cliente desiste e aperta Cancela
-        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0';
-        
-        -- Espera um pouco para observar os sinais voltando para 0
-        wait for 100 ns;
-
-        -- Finaliza a simulação
+        while not sim_finished loop
+            tb_CLK <= '0'; wait for clk_period/2;
+            tb_CLK <= '1'; wait for clk_period/2;
+        end loop;
         wait;
-        
     end process;
 
+    stim_proc: process
+        variable line_out : line;
+        
+        procedure print_status(msg : string) is
+        begin
+            write(line_out, string'("--- ")); write(line_out, msg); write(line_out, string'(" ---")); writeline(output, line_out);
+            write(line_out, string'("Display HEX: ")); write(line_out, to_integer(unsigned(tb_BIN_VALOR_OUT))); write(line_out, string'(" centavos"));
+            write(line_out, string'(" | LEDR0 (Produto): ")); write(line_out, tb_BIN_FIM_VENDA);
+            write(line_out, string'(" | LEDR1 (Troco): ")); write(line_out, tb_BIN_TROCO);
+            writeline(output, line_out); writeline(output, line_out);
+        end procedure;
+
+    begin
+        write(line_out, string'("Iniciando Teste...")); writeline(output, line_out); writeline(output, line_out);
+
+        -- RESET INICIAL
+        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
+
+        -------------------------------------------------------------
+        write(line_out, string'("=== CENARIO 1: COMPRA EXATA (SEM TROCO) ===")); writeline(output, line_out);
+        
+        tb_BIN_PRODUTO <= "0001"; wait for 40 ns;
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Produto Escolhido (Valor 300)");
+
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8)); -- R$ 2,00
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Inserido 200");
+
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8)); -- R$ 1,00
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Inserido 100 (Total pago)");
+
+        wait for 200 ns; -- Aguarda o timer do auto-reset
+
+        -------------------------------------------------------------
+        write(line_out, string'("=== CENARIO 2: COMPRA COM TROCO ===")); writeline(output, line_out);
+        
+        tb_BIN_PRODUTO <= "0010"; wait for 40 ns;
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Produto Escolhido (Valor 175)");
+
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8)); -- R$ 2,00
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Inserido 200 (Deve liberar produto e dar troco de 25)");
+
+        wait for 200 ns; -- Aguarda o timer do auto-reset
+
+        -------------------------------------------------------------
+        write(line_out, string'("=== CENARIO 3: CANCELA E DEVOLVE DINHEIRO ===")); writeline(output, line_out);
+        
+        tb_BIN_PRODUTO <= "0100"; wait for 40 ns;
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Produto Escolhido (Valor 225)");
+
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(50, 8)); -- R$ 0,50
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Inserido 50");
+        
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8)); -- R$ 1,00
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        print_status("Inserido 100 (Total guardado = 150)");
+
+        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
+        print_status("Apertou CANCELA (Deve devolver 150. Produto DEVE SER '0')");
+        
+        wait for 200 ns; -- Aguarda o timer do auto-reset
+
+        -------------------------------------------------------------
+        write(line_out, string'("Teste concluido com sucesso!"));
+        writeline(output, line_out);
+        
+        sim_finished <= true; 
+        wait;
+    end process;
 end behavior;
