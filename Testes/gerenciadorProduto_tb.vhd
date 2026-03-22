@@ -47,7 +47,7 @@ begin
         BIN_FIM_VENDA => tb_BIN_FIM_VENDA
     );
 
-    clk_process : process
+    clk_process : process  --gerador de clock
     begin
         while not sim_finished loop
             tb_CLK <= '0'; wait for clk_period/2;
@@ -59,7 +59,7 @@ begin
     stim_proc: process
         variable line_out : line;
         
-        procedure print_status(msg : string) is
+        procedure print_status(msg : string) is  --imprime os valores do display HEX, LEDR0 e LEDR1
         begin
             write(line_out, string'("--- ")); write(line_out, msg); write(line_out, string'(" ---")); writeline(output, line_out);
             write(line_out, string'("Display HEX: ")); write(line_out, to_integer(unsigned(tb_BIN_VALOR_OUT))); write(line_out, string'(" centavos"));
@@ -80,15 +80,18 @@ begin
         tb_BIN_PRODUTO <= "0001"; wait for 40 ns;
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Produto Escolhido (Valor 300)");
-
+			--Saída esperada: HEX = 300, LEDR0 = 0 e LEDR1 = 0
+			
         tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8)); -- R$ 2,00
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Inserido 200");
-
+			--Saída esperada: HEX = 100, LEDR0 = 0 e LEDR1 = 0
+		  
         tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8)); -- R$ 1,00
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Inserido 100 (Total pago)");
-
+			--Saída esperada: HEX = 0, LEDR0 = 1 e LEDR1 = 0
+		  
         wait for 200 ns; -- Aguarda o timer do auto-reset
 
         -------------------------------------------------------------
@@ -97,10 +100,12 @@ begin
         tb_BIN_PRODUTO <= "0010"; wait for 40 ns;
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Produto Escolhido (Valor 175)");
+			--Saída esperada: HEX = 175, LEDR0 = 0 e LEDR1 = 0
 
         tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8)); -- R$ 2,00
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Inserido 200 (Deve liberar produto e dar troco de 25)");
+			--Saída esperada: HEX = 25, LEDR0 = 1 e LEDR1 = 1
 
         wait for 200 ns; -- Aguarda o timer do auto-reset
 
@@ -110,18 +115,22 @@ begin
         tb_BIN_PRODUTO <= "0100"; wait for 40 ns;
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Produto Escolhido (Valor 225)");
-
+			--Saída esperada: HEX = 225, LEDR0 = 0 e LEDR1 = 0
+		  
         tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(50, 8)); -- R$ 0,50
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Inserido 50");
-        
-        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8)); -- R$ 1,00
+			--Saída esperada: HEX = 175, LEDR0 = 0 e LEDR1 = 0
+
+			tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8)); -- R$ 1,00
         tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         print_status("Inserido 100 (Total guardado = 150)");
-
+			--Saída esperada: HEX = 75, LEDR0 = 0 e LEDR1 = 0
+		  
         tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
         print_status("Apertou CANCELA (Deve devolver 150. Produto DEVE SER '0')");
-        
+			--Saída esperada: HEX = 150, LEDR0 = 0 e LEDR1 = 1
+
         wait for 200 ns; -- Aguarda o timer do auto-reset
 
         -------------------------------------------------------------
