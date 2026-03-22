@@ -26,7 +26,7 @@ architecture behavior of gerenciadorProduto is
     signal troco_ativo    : std_logic := '0';
     
     -- Para a placa real, use 50000000. Para simulação no ModelSim, troque para 5.
-    signal contador       : integer range 0 to 5 := 0; 
+    signal contador       : integer range 0 to 50000000 := 0; 
     
     signal confirm_antigo : std_logic := '0';
     signal cancela_antigo : std_logic := '0';
@@ -87,7 +87,7 @@ begin
 
             -- 1. Timer de 1 segundo
             if timer_ativo = '1' then
-                if contador < 5 then -- ATENÇÃO: Mude para 5 ao rodar no ModelSim!
+                if contador < 50000000 then -- ATENÇÃO: Mude para 5 ao rodar no ModelSim!
                     contador <= contador + 1; 
                 else
                     timer_ativo <= '0';
