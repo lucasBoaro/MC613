@@ -1,89 +1,154 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
-use STD.TEXTIO.ALL;
-use IEEE.STD_LOGIC_TEXTIO.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity gerenciadorProduto_tb is
+-- Entidade de testbench é sempre vazia
 end gerenciadorProduto_tb;
 
-architecture Behavioral of gerenciadorProduto_tb is
+architecture behavior of gerenciadorProduto_tb is
 
-    -- Component declaration for the Unit Under Test (UUT)
+    -- 1. Declaração do Componente a ser testado
     component gerenciadorProduto
-        Port (
-            CLK : in std_logic;
-        BIN_PRODUTO     : in  std_logic_vector(3 downto 0); -- No top-level, temos que fazer essa entrada receber um signal. Se fizermos conexão direta com a saída do selecionar produto, ele vai ignorar a troca de estado
-        BIN_VALOR_IN    : in  std_logic_vector(7 downto 0);
-        KEY_CANCELA     : in  std_logic;
-        KEY_CONFIRM     : in  std_logic;
-        BIN_VALOR_OUT   : out std_logic_vector(10 downto 0);
-        BIN_TROCO       : out std_logic := '0';
-        BIN_FIM_VENDA   : out std_logic := '0'
+        port(
+            CLK             : in  std_logic;
+            BIN_PRODUTO     : in  std_logic_vector(3 downto 0);
+            BIN_VALOR_IN    : in  std_logic_vector(7 downto 0);
+            KEY_CANCELA     : in  std_logic;
+            KEY_CONFIRM     : in  std_logic;
+            BIN_VALOR_OUT   : out std_logic_vector(10 downto 0);
+            BIN_TROCO       : out std_logic;
+            BIN_FIM_VENDA   : out std_logic
         );
     end component;
 
-    -- Signals to connect to the UUT
-    signal teste_clk : std_logic := '0';
-    signal teste_bin_produto : std_logic_vector(3 downto 0) := (others => '0');
-    signal teste_bin_valor_in : std_logic_vector(7 downto 0) := (others => '0');
-    signal teste_key_cancela : std_logic := '0';
-    signal teste_key_confirm : std_logic := '0';
-    signal teste_bin_valor_out : std_logic_vector(10 downto 0);
-    signal teste_bin_troco : std_logic := '0';
-    signal teste_bin_fim_venda : std_logic := '0';
+    -- 2. Sinais internos para conectar ao componente
+    signal tb_CLK           : std_logic := '0';
+    signal tb_BIN_PRODUTO   : std_logic_vector(3 downto 0) := (others => '0');
+    signal tb_BIN_VALOR_IN  : std_logic_vector(7 downto 0) := (others => '0');
+    signal tb_KEY_CANCELA   : std_logic := '0';
+    signal tb_KEY_CONFIRM   : std_logic := '0';
+    signal tb_BIN_VALOR_OUT : std_logic_vector(10 downto 0);
+    signal tb_BIN_TROCO     : std_logic;
+    signal tb_BIN_FIM_VENDA : std_logic;
+
+    -- Período do clock (50 MHz = 20 ns)
+    constant clk_period : time := 20 ns;
 
 begin
-    -- Instantiate the Unit Under Test (UUT)
-    uut: gerenciadorProduto
-        port map (
-            CLK => teste_clk,
-            BIN_PRODUTO => teste_bin_produto,
-            BIN_VALOR_IN => teste_bin_valor_in,
-            KEY_CANCELA => teste_key_cancela,
-            KEY_CONFIRM => teste_key_confirm,
-            BIN_VALOR_OUT => teste_bin_valor_out,
-            BIN_TROCO => teste_bin_troco,
-            BIN_FIM_VENDA => teste_bin_fim_venda
-        );
 
-    clk_process :process
+    -- 3. Instanciando o Componente (Unit Under Test - UUT)
+    UUT: gerenciadorProduto port map (
+        CLK           => tb_CLK,
+        BIN_PRODUTO   => tb_BIN_PRODUTO,
+        BIN_VALOR_IN  => tb_BIN_VALOR_IN,
+        KEY_CANCELA   => tb_KEY_CANCELA,
+        KEY_CONFIRM   => tb_KEY_CONFIRM,
+        BIN_VALOR_OUT => tb_BIN_VALOR_OUT,
+        BIN_TROCO     => tb_BIN_TROCO,
+        BIN_FIM_VENDA => tb_BIN_FIM_VENDA
+    );
+
+    -- 4. Processo Gerador de Clock
+    clk_process : process
     begin
-        while true loop
-            teste_clk <= '0';
-            wait for 10 ns;
-            teste_clk <= '1';
-            wait for 10 ns;
-        end loop;
+        tb_CLK <= '0';
+        wait for clk_period/2;
+        tb_CLK <= '1';
+        wait for clk_period/2;
     end process;
 
-    
-    test_process: process
-        variable line_out : line;
+    -- 5. Processo de Estímulos (A "Historinha" do usuário)
+    stim_proc: process
     begin
-        write(line_out, string'("Testando gerenciadorProduto..."));
-        writeline(output, line_out);
+        -- INÍCIO: Dá um reset inicial para garantir que tudo comece zerado
+        tb_KEY_CANCELA <= '1';
+        wait for 40 ns;
+        tb_KEY_CANCELA <= '0';
+        wait for 40 ns;
+
+        -------------------------------------------------------------
+        -- CENÁRIO 1: Compra exata (Sem Troco)
+        -- Escolhendo Produto 1 ("0001" -> Valor: 300)
+        -------------------------------------------------------------
+        tb_BIN_PRODUTO <= "0001"; 
+        wait for 40 ns;
         
-        -- Teste 1: Selecionar produto e inserir valor do produto
-        write(line_out, string'("Teste 1: Selecionar produto e inserir valor correto do produto"));
-        writeline(output, line_out);
+        -- Aperta Confirmar para escolher o produto
+        tb_KEY_CONFIRM <= '1';
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '0';
+        wait for 40 ns;
         
-        teste_bin_produto <= "0001"; -- Seleciona o produto com preço 300
-        wait for 20 ns; -- Aguarda para o sinal estabilizar
-        --gerenciadorProduto não deve ter acesso à key confirma, código está errado,
-        -- tem que ser o processo de selecionarValor que tem acesso a key confirma, 
-        --e o gerenciadorProduto tem que ler o valor do produto selecionado e o valor inserido, 
-        --comparar e decidir se a venda é finalizada ou se tem que devolver troco. 
+        -- Insere 150 de dinheiro
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(150, 8));
+        wait for 20 ns;
+        -- Aperta Confirmar para adicionar o dinheiro
+        tb_KEY_CONFIRM <= '1';
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '0';
+        wait for 40 ns; -- Neste momento a tela deve mostrar que faltam 150
+
+        -- Insere mais 150 de dinheiro
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(150, 8));
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '1';
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '0';
         
-        teste_bin_valor_in <= "10010110"; -- Insere R$ 3.00 (300 em decimal)
-        wait for 20 ns;     
+        -- Espera para ver a venda finalizada (FIM_VENDA = 1, TROCO = 0)
+        wait for 100 ns; 
         
+        -- Dá um reset manual (KEY_CANCELA) para ir direto para o próximo teste
+        -- (Isso evita termos que simular os 50 milhões de ciclos do seu timer de 1 segundo)
+        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
+
+        -------------------------------------------------------------
+        -- CENÁRIO 2: Compra com Troco
+        -- Escolhendo Produto 2 ("0010" -> Valor: 175)
+        -------------------------------------------------------------
+        tb_BIN_PRODUTO <= "0010";
+        wait for 40 ns;
         
-        write(line_out, string'("Valor do Produto (em decimal): "));
-        hwrite(line_out, teste_bin_valor_out);
-        write(line_out, string'(" | Troco: "));
-        write(line_out, teste_bin_troco);
-        write(line_out, string'(" | Fim da Venda: "));
-        write(line_out, teste_bin_fim_venda);
-        writeline(output, line_out);
+        -- Aperta Confirmar para escolher o produto
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
         
+        -- Cliente insere 200 de dinheiro de uma vez
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(200, 8));
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0';
+        
+        -- Espera para ver a venda finalizada (FIM_VENDA = 1, TROCO = 1)
+        wait for 100 ns;
+        
+        -- Reset manual para o próximo teste
+        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0'; wait for 40 ns;
+
+        -------------------------------------------------------------
+        -- CENÁRIO 3: Desistência no meio da operação (Cancela)
+        -- Escolhendo Produto 4 ("0100" -> Valor: 225)
+        -------------------------------------------------------------
+        tb_BIN_PRODUTO <= "0100";
+        wait for 40 ns;
+        
+        -- Confirma o produto
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 40 ns;
+        
+        -- Cliente insere apenas 100 de dinheiro
+        tb_BIN_VALOR_IN <= std_logic_vector(to_unsigned(100, 8));
+        wait for 20 ns;
+        tb_KEY_CONFIRM <= '1'; wait for 20 ns; tb_KEY_CONFIRM <= '0'; wait for 100 ns;
+        -- Neste momento faltariam 125 para pagar...
+        
+        -- Mas o cliente desiste e aperta Cancela
+        tb_KEY_CANCELA <= '1'; wait for 20 ns; tb_KEY_CANCELA <= '0';
+        
+        -- Espera um pouco para observar os sinais voltando para 0
+        wait for 100 ns;
+
+        -- Finaliza a simulação
+        wait;
+        
+    end process;
+
+end behavior;

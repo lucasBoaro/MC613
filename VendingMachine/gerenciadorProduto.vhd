@@ -23,6 +23,7 @@ architecture behavior of gerenciadorProduto is
     signal devolverTroco   : std_logic := '0';
     signal contador        : integer range 0 to 50000000 := 0;
     signal confirm_antigo  : std_logic := '0';
+    signal cancela_antigo  : std_logic := '0';
 
 begin
 
@@ -51,23 +52,16 @@ begin
     BIN_TROCO <= devolverTroco;
 
     process(CLK, KEY_CANCELA)
-        variable v_in_extendido : unsigned(10 downto 0);
-        variable v_atual  : unsigned(10 downto 0);
-        variable v_temp   : unsigned(10 downto 0);
+        variable v_in_extendido : unsigned(10 downto 0); -- Valor inserido pelo cliente, estendido para 11 bits
+        variable v_atual  : unsigned(10 downto 0); -- Valor que o cliente tem que pagar, vai diminuindo conforme ele insere dinheiro
+        variable v_temp   : unsigned(10 downto 0); -- vetor auxiliar para fazer contas
+        variable v_produto : unsigned(10 downto 0); -- Valor do produto selecionado
     begin
-        -- Reset Assíncrono
-        if KEY_CANCELA = '1' then
-            devolverTroco <= '0';
-            vendaFinalizada <= '0';
-            primeiroAvancar <= '1';
-            valorAtual <= (others => '0');
-            contador <= 0;
-            confirm_antigo <= '0';
-            
 
-        elsif rising_edge(CLK) then
+        if (rising_edge(CLK)) then
             -- Guarda o estado atual do botão para comparar no próximo ciclo
             confirm_antigo <= KEY_CONFIRM;
+            cancela_antigo <= KEY_CANCELA;
 
             -- Fim da venda, inicia o timer de 1 segundo
             if (vendaFinalizada = '1') then
@@ -83,8 +77,37 @@ begin
                 end if;
 
             else
+                --LÓGICA DE CANCELAMENTO (Detector de borda de subida)
+                if (KEY_CANCELA = '1' and cancela_antigo = '0') then
+                    
+                    if (primeiroAvancar = '0') then
+                        v_atual   := unsigned(valorAtual);
+                        v_produto := unsigned(valorProduto);
+                        
+                        -- Verifica se o cliente já inseriu algum dinheiro
+                        if (v_atual < v_produto) then
+                            -- Calcula o dinheiro inserido (Produto - O que ainda falta pagar)
+                            v_temp := v_produto - v_atual;
+                            
+                            -- Mostra o dinheiro sendo devolvido no display
+                            valorAtual <= std_logic_vector(v_temp);
+                            
+                            -- Acende o LED Troco e ativa a flag que inicia o timer de 1 segundo
+                            devolverTroco <= '1';
+                            vendaFinalizada <= '1'; 
+                        else
+                            -- Escolheu produto, mas não colocou dinheiro: Reseta instantaneamente
+                            primeiroAvancar <= '1';
+                            valorAtual <= (others => '0');
+                        end if;
+                    else
+                        -- Apertou Cancela na tela de seleção inicial: Reseta instantaneamente
+                        primeiroAvancar <= '1';
+                        valorAtual <= (others => '0');
+                    end if;
+
                 -- Só faz a conta se o botão Confirmar for '1' agora, mas era '0' 1 ciclo atrás. Para evitar que segurar o botão execute várias vezes a mesma coisa.
-                if (KEY_CONFIRM = '1' and confirm_antigo = '0') then
+                elsif (KEY_CONFIRM = '1' and confirm_antigo = '0') then
                     
                     if (primeiroAvancar = '1') then
                         valorAtual <= valorProduto;
