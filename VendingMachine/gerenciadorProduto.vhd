@@ -112,6 +112,7 @@ begin
                             troco_ativo <= '1';    -- LEDR1 acende (Devolução)
                         else
                             em_pagamento <= '0'; -- Reseta direto se não tem dinheiro
+                            CMD_DESTRAVAR_SEL_PROD <= '1'; 
                         end if;
                     end if;
 
