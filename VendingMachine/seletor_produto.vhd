@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 
 entity seletor_produto is
     port (
+        CLK        : in std_logic;
         KEY_CONFIRM: in  std_logic;    
         KEY_CANCELA: in std_logic;                
         BIN_PRODUTO: in  std_logic_vector(3 downto 0); 
@@ -15,19 +16,23 @@ architecture behavior of seletor_produto is
     -- Sinais internos (nossas memórias)
     signal estado_travado : std_logic := '0'; 
     signal valor_salvo    : std_logic_vector(3 downto 0); 
+    signal confirm_antigo : std_logic := '1';
+    signal cancela_antigo : std_logic := '1';
 begin
 
-    -- process para lidar com o botão de confirmar
-    process(KEY_CONFIRM, KEY_CANCELA, BIN_FIM_VENDA)
+    -- process para lidar com o botão de confirmar de forma síncrona
+    process(CLK)
     begin
-        if(KEY_CANCELA = '1') or (BIN_FIM_VENDA = '1') then  --volta ao estado inicial
-            estado_travado <= '0';
+        if rising_edge(CLK) then
+            confirm_antigo <= KEY_CONFIRM;
+            cancela_antigo <= KEY_CANCELA;
 
-        -- rising_edge = momento que solta o botão (0 -> 1)
-        elsif rising_edge(KEY_CONFIRM) and (estado_travado = '0') then 
-            estado_travado <= '1';            --trava o sistema
-            valor_salvo    <= BIN_PRODUTO; -- pega a cópia do valor atual dos switches
-
+            if (KEY_CANCELA = '1' and cancela_antigo = '0') or (BIN_FIM_VENDA = '1') then  --volta ao estado inicial
+                estado_travado <= '0';
+            elsif (KEY_CONFIRM = '1' and confirm_antigo = '0') and (estado_travado = '0') then 
+                estado_travado <= '1';            --trava o sistema
+                valor_salvo    <= BIN_PRODUTO; -- pega a cópia do valor atual dos switches
+            end if;
         end if;
     end process;
 

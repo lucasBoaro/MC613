@@ -31,6 +31,7 @@ begin
 
 	instanciaSelProd: entity work.seletor_produto 		
 		port map (		
+			CLK => CLOCK_50,
 			-- mapeamento das entradas e saídas da entidade selecionarProduto
 			BIN_PRODUTO => SW(3 downto 0),
 			BIN_OUT => fioNumProduto,
