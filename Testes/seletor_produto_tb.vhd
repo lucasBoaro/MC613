@@ -18,18 +18,19 @@ architecture Behavioral of seletor_produto_tb is
         );
     end component;
     
-    signal test_clk : std_logic := '0';
+    signal tb_clk : std_logic := '0';
     signal test_input : STD_LOGIC_VECTOR(3 downto 0);
     signal test_confirm : STD_LOGIC;
     signal test_output : STD_LOGIC_VECTOR(3 downto 0);
-    signal test_fim_venda : STD_LOGIC;
+    signal test_fim_venda : STD_LOGIC := '0';
     signal sim_finished     : boolean := false; 
 
     constant clk_period     : time := 20 ns;
+
 begin
     uut: seletor_produto
         port map (
-            CLK => test_clk,
+            CLK => tb_clk,
             BIN_PRODUTO => test_input,
 			KEY_CONFIRM => test_confirm,
             BIN_OUT => test_output,
@@ -67,7 +68,7 @@ begin
 		  write(line_out, string'("Teste clicando e não soltando "));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
 		  writeline(output, line_out);		  
 		  test_confirm <= '0';
-		  wait for 5 ns;
+		  wait for 30 ns;
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar
@@ -81,7 +82,7 @@ begin
 		  write(line_out, string'("Teste depois de soltar "));  --Espera-se como saída BIN_OUT = último BIN_PRODUTO escolhido
 		  writeline(output, line_out);
 		  test_confirm <= '1';
-		  wait for 5 ns;
+		  wait for 30 ns;
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar
@@ -95,7 +96,7 @@ begin
 		  write(line_out, string'("Teste clicar de novo"));  --Espera-se como saída BIN_OUT = último BIN_PRODUTO escolhido
 		  writeline(output, line_out);
 		  test_confirm <= '0';
-		  wait for 5 ns;
+		  wait for 30 ns;
 		  test_confirm <= '1';
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
@@ -106,23 +107,11 @@ begin
             write(line_out, test_output);
             writeline(output, line_out);
         end loop;
-		  
-		  write(line_out, string'("Teste apertando cancela"));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
-		  writeline(output, line_out);
-		  test_fim_venda <= '0';
-		  for i in 0 to 15 loop
-            test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
-            wait for 10 ns;  -- Aguarda para o sinal estabilizar
-            write(line_out, string'("Entrada: "));
-            hwrite(line_out, test_input);
-            write(line_out, string'(" | Saída: "));
-            write(line_out, test_output);
-            writeline(output, line_out);
-        end loop;
 
-          write(line_out, string'("Teste apertando cancela"));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
+          write(line_out, string'("Teste fim da venda (cancela ou compra)"));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
 		  writeline(output, line_out);
 		  test_fim_venda <= '1';
+		  wait for 30 ns;
 		  for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
             wait for 10 ns;  -- Aguarda para o sinal estabilizar
