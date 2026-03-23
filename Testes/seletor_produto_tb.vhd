@@ -35,6 +35,15 @@ begin
             BIN_FIM_VENDA => test_fim_venda
         );
     
+    clk_process : process  --gerador de clock
+    begin
+        while not sim_finished loop
+            tb_CLK <= '0'; wait for clk_period/2;
+            tb_CLK <= '1'; wait for clk_period/2;
+        end loop;
+        wait;
+    end process;
+
     test_process: process
         variable line_out : line;
     begin

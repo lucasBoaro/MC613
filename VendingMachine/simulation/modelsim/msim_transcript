@@ -1,0 +1,28 @@
+# Reading pref.tcl
+# do VendingMachine_run_msim_rtl_vhdl.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vcom -2008 -work work {C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/seletor_produto.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 15:01:56 on Mar 23,2026
+# vcom -reportprogress 300 -2008 -work work C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/seletor_produto.vhd 
+# -- Loading package STANDARD
+# init_dbinfo() DATABASE ERROR: (sqlite3_open C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/simulation/modelsim/rtl_work/_lib.qdb): unable to open database file
+# mtilibWrite(): INTERNAL ERROR: Unexpected null object encountered
+# ** Fatal: (vcom-9) Problem while writing token file "C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/simulation/modelsim/rtl_work/_temp/vcom8s0jm3".
+# ** Note: C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/seletor_produto.vhd(1): VHDL Compiler exiting
+# End time: 15:01:56 on Mar 23,2026, Elapsed time: 0:00:00
+# Errors: 1, Warnings: 0
+# ** Error: C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/vcom failed.
+# Error in macro ./VendingMachine_run_msim_rtl_vhdl.do line 8
+# C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/vcom failed.
+#     while executing
+# "vcom -2008 -work work {C:/Users/João/Documents/UNICAMP/MC613/VendingMachine/seletor_produto.vhd}"
