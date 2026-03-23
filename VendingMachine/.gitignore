@@ -1,5 +1,6 @@
 *.qpf
 *.qsf
 \db
-\incremental_db
 \output_files
+\incremental_db
+\*.sopcinfo 
