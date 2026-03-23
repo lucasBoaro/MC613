@@ -23,6 +23,7 @@ architecture Behavioral of seletor_produto_tb is
     signal test_confirm : STD_LOGIC;
     signal test_output : STD_LOGIC_VECTOR(3 downto 0);
     signal test_fim_venda : STD_LOGIC;
+    signal sim_finished     : boolean := false; 
 
     constant clk_period     : time := 20 ns;
 begin
@@ -134,6 +135,8 @@ begin
         
         write(line_out, string'("Teste concluído"));
         writeline(output, line_out);
+
+        sim_finished <= true; 
         wait;
     end process;
 end Behavioral;
