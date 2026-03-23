@@ -18,7 +18,7 @@ end gerenciadorProduto;
 
 architecture behavior of gerenciadorProduto is
     signal valorProduto   : std_logic_vector(10 downto 0);
-    signal saldo_inserido : unsigned(10 downto 0) := (others => '0'); -- O 'SAL' do seu diagrama!
+    signal saldo_inserido : unsigned(10 downto 0) := (others => '0'); 
     
     -- Flags de controle de estado
     signal em_pagamento   : std_logic := '0';
@@ -103,12 +103,12 @@ begin
                 end if;
 
             else
-                -- 2. Lógica de Cancelamento
+                -- Lógica de Cancelamento
                 if (KEY_CANCELA = '1' and cancela_antigo = '0') then
                     if em_pagamento = '1' then
                         if saldo_inserido > 0 then
                             timer_ativo <= '1';
-                            compra_sucesso <= '0'; -- Garante que LEDR0 fique apagado!
+                            compra_sucesso <= '0'; -- Garante que LEDR0 fique apagado
                             troco_ativo <= '1';    -- LEDR1 acende (Devolução)
                         else
                             em_pagamento <= '0'; -- Reseta direto se não tem dinheiro
@@ -116,7 +116,7 @@ begin
                         end if;
                     end if;
 
-                -- 3. Lógica de Confirmação e Pagamento (SOMA SALDO)
+                -- Lógica de Confirmação e Pagamento (SOMA SALDO)
                 elsif (KEY_CONFIRM = '1' and confirm_antigo = '0') then
                     
                     if em_pagamento = '0' then
@@ -126,11 +126,11 @@ begin
                         v_in := resize(unsigned(BIN_VALOR_IN), 11);
                         
                         if v_in > 0 then -- Ignora cliques se o bloco selecionador mandar 0 (chaves inválidas)
-                            v_novo_saldo := saldo_inserido + v_in; -- SAL + VAL !
+                            v_novo_saldo := saldo_inserido + v_in; 
                             saldo_inserido <= v_novo_saldo;
                             v_prod := unsigned(valorProduto);
 
-                            -- Compara Saldo (SAL ? PRO)
+                            -- Compara Saldo
                             if v_novo_saldo >= v_prod then
                                 timer_ativo <= '1';
                                 compra_sucesso <= '1';
