@@ -27,6 +27,7 @@ begin
     test_process: process
         variable line_out : line;
     begin
+-------------------------------------------------------------
         write(line_out, string'("Testando selecionarValor..."));
         writeline(output, line_out);
         
@@ -43,6 +44,7 @@ begin
             writeline(output, line_out);
         end loop;
 		
+-------------------------------------------------------------
 		write(line_out, string'("Teste todos os switches"));  --testa todas as combinações de switch
 		writeline(output, line_out);
         for i in 0 to 63 loop
@@ -54,9 +56,6 @@ begin
             write(line_out, test_output);
             writeline(output, line_out);
         end loop;
-
-		  
-
         
         write(line_out, string'("Teste concluído"));
         writeline(output, line_out);

@@ -37,10 +37,8 @@ architecture behavior of VendingMachine_tb is
     signal sim_finished : boolean := false;
     constant clk_period : time := 20 ns;
 
-    -- =========================================================================
-    -- NOVA FEATURE: Tradutor de Display 7-Segmentos (Lógica Negativa - Anodo Comum)
-    -- =========================================================================
-    function decode_hex(hex_in : std_logic_vector(6 downto 0)) return character is
+    function decode_hex(hex_in : std_logic_vector(6 downto 0)) return character is -- Traduzindo o display de 7 segmentos para os testes
+
     begin
         case hex_in is
             when "1000000" => return '0';
@@ -53,9 +51,9 @@ architecture behavior of VendingMachine_tb is
             when "1111000" => return '7';
             when "0000000" => return '8';
             when "0010000" => return '9';
-            when "0011000" => return '9'; -- Variação comum do dígito 9
-            when "1111111" => return ' '; -- Display totalmente apagado
-            when others    => return '?'; -- Estado desconhecido (ex: U, X)
+            when "0011000" => return '9'; -- Variação do dígito 9
+            when "1111111" => return ' '; -- Display apagado
+            when others    => return '?'; -- Estado desconhecido
         end case;
     end function;
 
@@ -91,9 +89,6 @@ begin
             writeline(output, line_out);
         end procedure;
 
-        -- =========================================================================
-        -- STATUS ATUALIZADO: Agora imprime os LEDs e os Números da Tela
-        -- =========================================================================
         procedure print_status is
         begin
             -- Imprime os LEDs
@@ -133,7 +128,7 @@ begin
         write(line_out, string'("Iniciando Teste do Top Level (Vending Machine)...")); 
         writeline(output, line_out); writeline(output, line_out);
 
-        -- RESET INICIAL PARA DESTRAVAR TUDO
+        -- Reset para garantir que está no estado inicial
         press_cancel;
 
         -------------------------------------------------------------
@@ -152,7 +147,7 @@ begin
         print_msg("Inserido moeda de R$ 1,00 via SW(8)");
 
         wait for 10 ns; 
-        print_status; -- Substitui o antigo print_leds
+        print_status;
         wait for 200 ns;
 
         -------------------------------------------------------------
@@ -197,7 +192,7 @@ begin
         wait for 200 ns;
 
         -------------------------------------------------------------
-        print_msg("Fim da simulacao do Top Level!");
+        print_msg("Fim da simulacao do Top Level");
         sim_finished <= true; 
         wait;
         

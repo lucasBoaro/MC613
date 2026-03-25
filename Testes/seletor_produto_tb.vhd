@@ -49,11 +49,12 @@ begin
     test_process: process
         variable line_out : line;
     begin
+-------------------------------------------------------------
         write(line_out, string'("Testando seletor_produto..."));
         writeline(output, line_out);
         
         -- Loop de 0 a 15
-		  write(line_out, string'("Teste sem clicar "));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
+		  write(line_out, string'("Teste sem clicar "));  --Espera como saída BIN_OUT = BIN_PRODUTO
 		  writeline(output, line_out);
         for i in 0 to 15 loop
             test_input <= STD_LOGIC_VECTOR(to_unsigned(i, 4));
@@ -64,7 +65,8 @@ begin
             write(line_out, test_output);
             writeline(output, line_out);
         end loop;
-		  
+
+-------------------------------------------------------------		  
 		  write(line_out, string'("Teste clicando e não soltando "));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
 		  writeline(output, line_out);		  
 		  test_confirm <= '0';
@@ -79,6 +81,7 @@ begin
             writeline(output, line_out);
         end loop;
 		
+-------------------------------------------------------------
 		  write(line_out, string'("Teste depois de soltar "));  --Espera-se como saída BIN_OUT = último BIN_PRODUTO escolhido
 		  writeline(output, line_out);
 		  test_confirm <= '1';
@@ -93,6 +96,7 @@ begin
             writeline(output, line_out);
         end loop;
 		  
+-------------------------------------------------------------
 		  write(line_out, string'("Teste clicar de novo"));  --Espera-se como saída BIN_OUT = último BIN_PRODUTO escolhido
 		  writeline(output, line_out);
 		  test_confirm <= '0';
@@ -108,6 +112,7 @@ begin
             writeline(output, line_out);
         end loop;
 
+-------------------------------------------------------------
           write(line_out, string'("Teste fim da venda (cancela ou compra)"));  --Espera-se como saída BIN_OUT = BIN_PRODUTO
 		  writeline(output, line_out);
 		  test_fim_venda <= '1';
@@ -121,7 +126,8 @@ begin
             write(line_out, test_output);
             writeline(output, line_out);
         end loop;
-        
+
+-------------------------------------------------------------
         write(line_out, string'("Teste concluído"));
         writeline(output, line_out);
 

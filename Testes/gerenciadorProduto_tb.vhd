@@ -59,7 +59,7 @@ begin
     stim_proc: process
         variable line_out : line;
         
-        procedure print_status(msg : string) is  --imprime os valores do display HEX, LEDR0 e LEDR1
+        procedure print_status(msg : string) is  --imprime os valores dos displays HEX, LEDR0 e LEDR1
         begin
             write(line_out, string'("--- ")); write(line_out, msg); write(line_out, string'(" ---")); writeline(output, line_out);
             write(line_out, string'("Display HEX: ")); write(line_out, to_integer(unsigned(tb_BIN_VALOR_OUT))); write(line_out, string'(" centavos"));
