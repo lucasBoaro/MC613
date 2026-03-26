@@ -4,3 +4,7 @@
 \output_files
 \incremental_db
 \*.sopcinfo 
+\docs
+*.bak
+*.rpt
+*.txt

@@ -33,7 +33,7 @@ architecture behavior of gerenciadorProduto is
     signal cancela_antigo : std_logic := '0';
 begin
 
-    -- Tabela de Preços Exata do Enunciado
+    -- Tabela de Preços do Enunciado
     with BIN_PRODUTO select
         valorProduto <= 
             std_logic_vector(to_unsigned(125, 11)) when "0000",

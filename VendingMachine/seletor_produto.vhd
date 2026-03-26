@@ -12,7 +12,6 @@ entity seletor_produto is
 end entity seletor_produto;
 
 architecture behavior of seletor_produto is
-    -- Sinais internos (nossas memórias)
     signal estado_travado : std_logic := '0'; 
     signal valor_salvo    : std_logic_vector(3 downto 0); 
     signal confirm_antigo : std_logic := '1';
