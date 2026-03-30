@@ -64,7 +64,7 @@
 
     VGA_VS <= '0' when (y_counter >= 491 and y_counter <= 492) else '1';
 
-    VGA_BLANK_N <= '0';
+    VGA_BLANK_N <= '0' when (x_counter > 639 or y_counter > 479) else '1';
     VGA_SYNC_N <= '1';
     VGA_CLK    <= pixel_clk;
 
