@@ -73,6 +73,10 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL p_x, p_y      : UNSIGNED(9 DOWNTO 0);
     SIGNAL sprite_y      : UNSIGNED(9 DOWNTO 0);
     SIGNAL diff_x, diff_y: UNSIGNED(9 DOWNTO 0);
+
+    SIGNAL current_sprite_x  : UNSIGNED(9 DOWNTO 0);
+    SIGNAL current_sprite_id : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_hit        : STD_LOGIC;
     
     -- Sinais booleanos para saber se estamos dentro da caixa do sprite
     SIGNAL dentro_x, dentro_y : BOOLEAN;
@@ -80,42 +84,55 @@ ARCHITECTURE behavior OF PPU IS
 BEGIN
 
     -- ==========================================
-    -- LÓGICA DE COLISÃO E ENDEREÇAMENTO (O "Pixel Interceptor")
+    -- LÓGICA DE COLISÃO E ENDEREÇAMENTO (10 SWITCHES)
     -- ==========================================
-    
-    -- 1. Conversão de tipos para podermos fazer contas matemáticas (+ e -)
     p_x <= UNSIGNED(pixel_x);
     p_y <= UNSIGNED(pixel_y);
-    
-    -- Para o nosso primeiro teste, vamos focar no Switch 0.
-    -- Mandamos a RAM ler sempre o endereço 0 durante o tempo visível da tela.
-    ram_addr_leitura <= x"00"; 
-    
-    -- Lemos a posição Y da alavanca 0 que está salva na RAM e convertemos para 10 bits
+
+    -- 1. Em qual "coluna" de switch o monitor está varrendo agora?
+    -- Damos um espaçamento de 40 pixels entre cada alavanca na tela.
+    current_sprite_id <=
+        x"00" WHEN (p_x >= 100 AND p_x < 108) ELSE
+        x"01" WHEN (p_x >= 140 AND p_x < 148) ELSE
+        x"02" WHEN (p_x >= 180 AND p_x < 188) ELSE
+        x"03" WHEN (p_x >= 220 AND p_x < 228) ELSE
+        x"04" WHEN (p_x >= 260 AND p_x < 268) ELSE
+        x"05" WHEN (p_x >= 300 AND p_x < 308) ELSE
+        x"06" WHEN (p_x >= 340 AND p_x < 348) ELSE
+        x"07" WHEN (p_x >= 380 AND p_x < 388) ELSE
+        x"08" WHEN (p_x >= 420 AND p_x < 428) ELSE
+        x"09" WHEN (p_x >= 460 AND p_x < 468) ELSE
+        x"FF"; -- FF significa que o feixe está no fundo azul, sem switches aqui.
+
+    -- 2. Qual é a coordenada X base desse switch específico?
+    current_sprite_x <=
+        TO_UNSIGNED(100, 10) WHEN current_sprite_id = x"00" ELSE
+        TO_UNSIGNED(140, 10) WHEN current_sprite_id = x"01" ELSE
+        TO_UNSIGNED(180, 10) WHEN current_sprite_id = x"02" ELSE
+        TO_UNSIGNED(220, 10) WHEN current_sprite_id = x"03" ELSE
+        TO_UNSIGNED(260, 10) WHEN current_sprite_id = x"04" ELSE
+        TO_UNSIGNED(300, 10) WHEN current_sprite_id = x"05" ELSE
+        TO_UNSIGNED(340, 10) WHEN current_sprite_id = x"06" ELSE
+        TO_UNSIGNED(380, 10) WHEN current_sprite_id = x"07" ELSE
+        TO_UNSIGNED(420, 10) WHEN current_sprite_id = x"08" ELSE
+        TO_UNSIGNED(460, 10) WHEN current_sprite_id = x"09" ELSE
+        TO_UNSIGNED(0, 10);
+
+    -- 3. A PPU pede para a RAM: "Me dê o Y da alavanca em que estou passando em cima!"
+    ram_addr_leitura <= current_sprite_id WHEN current_sprite_id /= x"FF" ELSE x"00";
     sprite_y <= RESIZE(UNSIGNED(ram_dout_fio), 10);
 
-    -- 2. A "Bounding Box" (Caixa de Colisão)
-    -- Vamos fixar a posição X do primeiro switch no pixel 100 da tela.
-    -- O sprite tem 8 pixels de largura (então vai do 100 ao 107).
-    dentro_x <= (p_x >= 100) AND (p_x < 108);
-    
-    -- A posição Y depende da RAM. Vai do sprite_y até sprite_y + 7.
-    dentro_y <= (p_y >= sprite_y) AND (p_y < sprite_y + 8);
+    -- 4. Bounding Box: O Y atual do monitor está batendo com o Y devolvido pela RAM?
+    sprite_hit <= '1' WHEN (current_sprite_id /= x"FF") AND (p_y >= sprite_y) AND (p_y < sprite_y + 8) ELSE '0';
 
-    -- 3. Em qual pixel "interno" do desenho o monitor está agora? (De 0 a 7)
-    diff_x <= p_x - 100;
+    -- 5. Se deu "hit", calcula a diferença para fatiar o endereço da ROM
+    diff_x <= p_x - current_sprite_x;
     diff_y <= p_y - sprite_y;
 
-    -- 4. A Mágica do Hardware: Fatiamento de Bits para calcular o Endereço!
-    -- Em vez de fazer (diff_y * 8) + diff_x, nós simplesmente pegamos os 3 bits 
-    -- menos significativos de Y e concatenamos (&) com os 3 bits de X. 
-    -- Isso forma perfeitamente o número de 0 a 63 (6 bits) para ler a nossa ROM!
-    rom_addr_fio <= STD_LOGIC_VECTOR(diff_y(2 DOWNTO 0) & diff_x(2 DOWNTO 0)) WHEN (dentro_x AND dentro_y) ELSE (OTHERS => '0');
+    rom_addr_fio <= STD_LOGIC_VECTOR(diff_y(2 DOWNTO 0) & diff_x(2 DOWNTO 0)) WHEN sprite_hit = '1' ELSE (OTHERS => '0');
 
-    -- 5. A Regra de Ouro da Transparência:
-    -- O sprite só "acende" na tela se o pixel do monitor estiver dentro da caixa 
-    -- E a cor que acabou de sair da ROM for diferente do índice transparente (0).
-    sprite_ativo <= '1' WHEN (dentro_x AND dentro_y) AND (rom_data_fio /= x"00") ELSE '0';
+    -- 6. Transparência Final (só acende se não for a cor 0 do nosso desenho)
+    sprite_ativo <= '1' WHEN (sprite_hit = '1') AND (rom_data_fio /= x"00") ELSE '0';
     -- ==========================================
     -- PALETA DE CORES DOS SPRITES
     -- ==========================================
