@@ -69,4 +69,4 @@ def gerar_tileset_e_mapa(imagem_path, largura_tile=8, altura_tile=8):
     print("Salvo como: 'tilemap_gerado.csv'\n")
 
 # Executa a função passando o nome do arquivo que você enviou
-gerar_tileset_e_mapa(r"C:\Users\João\Documents\UNICAMP\MC613\VGA\VGA\Background.png")
+gerar_tileset_e_mapa(r"C:\Users\João\Documents\UNICAMP\MC613\VGA\VGA\Sprites.png")
