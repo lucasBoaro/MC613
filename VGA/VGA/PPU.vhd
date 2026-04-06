@@ -183,8 +183,9 @@ BEGIN
         END IF;
     END PROCESS;
 
-    -- Usa o novo endereço sincronizado para a escrita
-    ram_addr_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(ram_write_addr, 8)) WHEN video_active = '0' ELSE ram_addr_leitura;
+    -- Usa o novo endereço sincronizado para a escrita. 
+    -- A MUDANÇA: O MUX agora é controlado pelo ram_we_fio!
+    ram_addr_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(ram_write_addr, 8)) WHEN ram_we_fio = '1' ELSE ram_addr_leitura;
     -- ==========================================
     -- PASSO 2: INSTANCIAÇÃO (Ligando os fios)
     -- ==========================================
