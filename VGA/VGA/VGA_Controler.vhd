@@ -68,9 +68,9 @@
     VGA_SYNC_N <= '1';
     VGA_CLK    <= pixel_clk;
 
-    VGA_R <= x"FF" when (x_counter <= 400 and y_counter <= 300) else x"00";
-    VGA_G <= x"00";
-    VGA_B <= x"00"; 
+    VGA_R <= r_in WHEN video_active = '1' ELSE (OTHERS => '0');
+    VGA_G <= g_in WHEN video_active = '1' ELSE (OTHERS => '0');
+    VGA_B <= b_in WHEN video_active = '1' ELSE (OTHERS => '0');
 
     pixel_x <= std_logic_vector(to_unsigned(x_counter, 10));
     pixel_y <= std_logic_vector(to_unsigned(y_counter, 10));

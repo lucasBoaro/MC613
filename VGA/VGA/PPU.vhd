@@ -24,3 +24,46 @@ ENTITY PPU IS
     b            : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)   -- Azul do pixel a ser desenhado
   );
 END PPU;
+
+ARCHITECTURE behavior OF PPU IS
+
+    -- 1. Sinais da Camada de Background
+    SIGNAL bg_r, bg_g, bg_b : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
+    -- 2. Sinais da Camada de Sprites (As alavancas dos switches)
+    SIGNAL sp_r, sp_g, sp_b : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    
+    -- Sinal crucial: O monitor está desenhando em cima de um sprite agora?
+    SIGNAL sprite_ativo     : STD_LOGIC;
+
+BEGIN
+
+    -- ==========================================
+    -- BLOCO 1: Geração do Background
+    -- ==========================================
+    -- Como decidimos que o fundo inteiro será Azul Escuro fixo, 
+    -- podemos fazer a atribuição direta aqui.
+    -- (No futuro, você pode colocar a lógica de leitura da memória de mapa aqui)
+    bg_r <= x"00";
+    bg_g <= x"00";
+    bg_b <= x"80"; -- Azul escuro
+
+    -- ==========================================
+    -- BLOCO 2: Geração dos Sprites (Alavancas e Botões)
+    -- ==========================================
+    -- Aqui vai entrar a lógica que lê a entrada "switches" e "keys" 
+    -- e altera o sp_r, sp_g, sp_b e o sprite_ativo baseada no pixel_x e pixel_y.
+    -- (Vamos construir isso no próximo passo)
+
+
+    -- ==========================================
+    -- BLOCO 3: O Multiplexador de Composição (Layer Selector)
+    -- ==========================================
+    -- Aqui nós decidimos a cor final que sai da PPU (sinais r, g, b).
+
+    -- [SEU CÓDIGO VAI AQUI]
+    r <= sp_r WHEN sprite_ativo = '1' ELSE bg_r;
+    g <= sp_g WHEN sprite_ativo = '1' ELSE bg_g;
+    b <= sp_b WHEN sprite_ativo = '1' ELSE bg_b;
+
+END behavior;
