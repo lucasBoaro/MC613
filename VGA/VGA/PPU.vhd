@@ -34,6 +34,7 @@ ARCHITECTURE behavior OF PPU IS
 
     -- Sinal para varrer os 10 switches
     SIGNAL scan_idx : INTEGER RANGE 0 TO 9 := 0;
+    SIGNAL ram_write_addr : INTEGER RANGE 0 TO 9 := 0;
     
     -- Sinal interno para o endereço que a PPU vai ler na hora de desenhar
     SIGNAL ram_addr_leitura : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -83,28 +84,26 @@ ARCHITECTURE behavior OF PPU IS
 
 BEGIN
 
-    -- ==========================================
-    -- LÓGICA DE COLISÃO E ENDEREÇAMENTO (10 SWITCHES)
+   -- ==========================================
+    -- LÓGICA DE COLISÃO E ENDEREÇAMENTO (10 SWITCHES COM ZOOM 4X)
     -- ==========================================
     p_x <= UNSIGNED(pixel_x);
     p_y <= UNSIGNED(pixel_y);
 
-    -- 1. Em qual "coluna" de switch o monitor está varrendo agora?
-    -- Damos um espaçamento de 40 pixels entre cada alavanca na tela.
+    -- 1. Ampliamos a largura de cada switch de 8 para 32 pixels
     current_sprite_id <=
-        x"00" WHEN (p_x >= 100 AND p_x < 108) ELSE
-        x"01" WHEN (p_x >= 140 AND p_x < 148) ELSE
-        x"02" WHEN (p_x >= 180 AND p_x < 188) ELSE
-        x"03" WHEN (p_x >= 220 AND p_x < 228) ELSE
-        x"04" WHEN (p_x >= 260 AND p_x < 268) ELSE
-        x"05" WHEN (p_x >= 300 AND p_x < 308) ELSE
-        x"06" WHEN (p_x >= 340 AND p_x < 348) ELSE
-        x"07" WHEN (p_x >= 380 AND p_x < 388) ELSE
-        x"08" WHEN (p_x >= 420 AND p_x < 428) ELSE
-        x"09" WHEN (p_x >= 460 AND p_x < 468) ELSE
-        x"FF"; -- FF significa que o feixe está no fundo azul, sem switches aqui.
+        x"00" WHEN (p_x >= 100 AND p_x < 132) ELSE
+        x"01" WHEN (p_x >= 140 AND p_x < 172) ELSE
+        x"02" WHEN (p_x >= 180 AND p_x < 212) ELSE
+        x"03" WHEN (p_x >= 220 AND p_x < 252) ELSE
+        x"04" WHEN (p_x >= 260 AND p_x < 292) ELSE
+        x"05" WHEN (p_x >= 300 AND p_x < 332) ELSE
+        x"06" WHEN (p_x >= 340 AND p_x < 372) ELSE
+        x"07" WHEN (p_x >= 380 AND p_x < 412) ELSE
+        x"08" WHEN (p_x >= 420 AND p_x < 452) ELSE
+        x"09" WHEN (p_x >= 460 AND p_x < 492) ELSE
+        x"FF";
 
-    -- 2. Qual é a coordenada X base desse switch específico?
     current_sprite_x <=
         TO_UNSIGNED(100, 10) WHEN current_sprite_id = x"00" ELSE
         TO_UNSIGNED(140, 10) WHEN current_sprite_id = x"01" ELSE
@@ -118,20 +117,19 @@ BEGIN
         TO_UNSIGNED(460, 10) WHEN current_sprite_id = x"09" ELSE
         TO_UNSIGNED(0, 10);
 
-    -- 3. A PPU pede para a RAM: "Me dê o Y da alavanca em que estou passando em cima!"
     ram_addr_leitura <= current_sprite_id WHEN current_sprite_id /= x"FF" ELSE x"00";
     sprite_y <= RESIZE(UNSIGNED(ram_dout_fio), 10);
 
-    -- 4. Bounding Box: O Y atual do monitor está batendo com o Y devolvido pela RAM?
-    sprite_hit <= '1' WHEN (current_sprite_id /= x"FF") AND (p_y >= sprite_y) AND (p_y < sprite_y + 8) ELSE '0';
+    -- 2. Ampliamos a altura da caixa de colisão para 32 pixels
+    sprite_hit <= '1' WHEN (current_sprite_id /= x"FF") AND (p_y >= sprite_y) AND (p_y < sprite_y + 32) ELSE '0';
 
-    -- 5. Se deu "hit", calcula a diferença para fatiar o endereço da ROM
     diff_x <= p_x - current_sprite_x;
     diff_y <= p_y - sprite_y;
 
-    rom_addr_fio <= STD_LOGIC_VECTOR(diff_y(2 DOWNTO 0) & diff_x(2 DOWNTO 0)) WHEN sprite_hit = '1' ELSE (OTHERS => '0');
+    -- 3. A Mágica do Zoom: diff_y(4 downto 2) e diff_x(4 downto 2)
+    -- Isso descarta os 2 bits menos significativos (divide a coordenada por 4)
+    rom_addr_fio <= STD_LOGIC_VECTOR(diff_y(4 DOWNTO 2) & diff_x(4 DOWNTO 2)) WHEN sprite_hit = '1' ELSE (OTHERS => '0');
 
-    -- 6. Transparência Final (só acende se não for a cor 0 do nosso desenho)
     sprite_ativo <= '1' WHEN (sprite_hit = '1') AND (rom_data_fio /= x"00") ELSE '0';
     -- ==========================================
     -- PALETA DE CORES DOS SPRITES
@@ -161,39 +159,32 @@ BEGIN
             scan_idx <= 0;
             ram_we_fio <= '0';
         ELSIF RISING_EDGE(clk) THEN
-            
-            -- Só atualizamos a memória quando o monitor NÃO estiver desenhando
             IF video_active = '0' THEN
-                -- Habilita a escrita na RAM
                 ram_we_fio <= '1';
                 
-                -- Se o switch atual estiver LIGADO ('1')
-                IF switches(scan_idx) = '1' THEN
-                    ram_din_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(200, 8)); -- Y = 200 (Alavanca para Cima)
+                -- Sincroniza o endereço de gravação com o ciclo atual!
+                ram_write_addr <= scan_idx; 
+                
+                -- Invertemos a leitura: scan_idx 0 (esquerda da tela) lê o switch 9 (esquerda da placa)
+                IF switches(9 - scan_idx) = '1' THEN
+                    ram_din_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(200, 8)); -- Y = 200
                 ELSE
-                    ram_din_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(240, 8)); -- Y = 240 (Alavanca para Baixo)
+                    ram_din_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(240, 8)); -- Y = 240
                 END IF;
                 
-                -- Prepara para ler o próximo switch no próximo pulso de clock
                 IF scan_idx = 9 THEN
                     scan_idx <= 0;
                 ELSE
                     scan_idx <= scan_idx + 1;
                 END IF;
-                
             ELSE
-                -- Se o monitor estiver desenhando a tela visível, 
-                -- DESLIGA a escrita para que possamos ler a memória em paz!
                 ram_we_fio <= '0';
             END IF;
-            
         END IF;
     END PROCESS;
 
-    -- Multiplexador do Endereço da RAM:
-    -- Se a tela tá apagada, o fio de endereço da RAM recebe o 'scan_idx' para a escrita.
-    -- Se a tela tá acesa, o fio recebe o endereço de leitura para desenhar.
-    ram_addr_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(scan_idx, 8)) WHEN video_active = '0' ELSE ram_addr_leitura;
+    -- Usa o novo endereço sincronizado para a escrita
+    ram_addr_fio <= STD_LOGIC_VECTOR(TO_UNSIGNED(ram_write_addr, 8)) WHEN video_active = '0' ELSE ram_addr_leitura;
     -- ==========================================
     -- PASSO 2: INSTANCIAÇÃO (Ligando os fios)
     -- ==========================================
