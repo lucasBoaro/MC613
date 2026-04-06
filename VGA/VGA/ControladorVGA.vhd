@@ -2,54 +2,108 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-entity ControladorVGA is 
-    port(
-        CLK_50       : in  std_logic;
-        VGA_R        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  -- Saída ControladorVGA Vermelha
-        VGA_G        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  -- Saída ControladorVGA Verde
-        VGA_B        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  -- Saída ControladorVGA Azul
-        VGA_HS       : OUT STD_LOGIC;                     -- Sincronismo Horizontal
-        VGA_VS       : OUT STD_LOGIC;                     -- Sincronismo Vertical
-        VGA_BLANK_N  : OUT STD_LOGIC;                     -- Fora da área visível (ou seja, deve ser '0' no blanking)
-        VGA_SYNC_N   : OUT STD_LOGIC := '1';              -- Sincronização de vídeo (fixo em '1')
-        VGA_CLK      : OUT STD_LOGIC                      -- Clock do pixel (espelho do pixel_clk)
+ENTITY ControladorVGA IS 
+    PORT(
+        -- Clocks e placa
+        CLK_50       : IN  STD_LOGIC;
+        
+        -- Entradas Físicas da Placa DE1-SoC
+        SW           : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);  -- Os 10 Switches físicos
+        KEY          : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);  -- Os 4 Botões físicos
+
+        -- Saídas para o Monitor
+        VGA_R        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  
+        VGA_G        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  
+        VGA_B        : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  
+        VGA_HS       : OUT STD_LOGIC;                     
+        VGA_VS       : OUT STD_LOGIC;                     
+        VGA_BLANK_N  : OUT STD_LOGIC;  
+        VGA_SYNC_N   : OUT STD_LOGIC := '1';              
+        VGA_CLK      : OUT STD_LOGIC                   
     );
-end ControladorVGA;
+END ControladorVGA;
 
-architecture Behavioral of ControladorVGA is
+ARCHITECTURE Behavioral OF ControladorVGA IS
 
-  signal pixel_clk : std_logic;
-  signal pixel_x   : std_logic_vector(9 downto 0);
-  signal pixel_y   : std_logic_vector(9 downto 0);
-  signal video_active : std_logic;
+    -- Sinais de Clock
+    SIGNAL pixel_clk    : STD_LOGIC;
+    
+    -- Sinais de Sincronismo (VGA -> PPU)
+    SIGNAL pixel_x      : STD_LOGIC_VECTOR(9 DOWNTO 0);
+    SIGNAL pixel_y      : STD_LOGIC_VECTOR(9 DOWNTO 0);
+    SIGNAL video_active : STD_LOGIC;
+    
+    -- Sinais de Cor (PPU -> VGA)
+    SIGNAL ppu_r        : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL ppu_g        : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL ppu_b        : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-begin
-    instanciaPLL: entity work.PLL
+    -- ==========================================
+    -- DECLARAÇÃO DO COMPONENTE PLL (Novo!)
+    -- ==========================================
+    COMPONENT pll IS
+        PORT (
+            refclk   : IN  STD_LOGIC := '0';
+            rst      : IN  STD_LOGIC := '0';
+            outclk_0 : OUT STD_LOGIC;
+            locked   : OUT STD_LOGIC
+        );
+    END COMPONENT;
+
+BEGIN
+
+    -- 1. Gerador de Clock (Coração do sistema)
+    -- Tiramos o "entity work." e chamamos o componente direto
+    instanciaPLL: pll
         port map (
-            refclk => CLK_50,
-            rst => '0',
+            refclk   => CLK_50,
+            rst      => '0',
             outclk_0 => pixel_clk,
-            locked => open
+            locked   => open
         );
 
+    -- 2. A sua PPU (O Cérebro Gráfico)
+    instancia_PPU: entity work.PPU
+        port map (
+            clk          => pixel_clk,  -- Usamos o clock de pixel para ficar tudo em sincronia
+            reset_n      => '1',        -- Reset desativado por enquanto
+            switches     => SW,         -- Ligando as chaves físicas na PPU
+            buttons      => KEY,        -- Ligando os botões físicos na PPU
+            
+            -- Recebendo as coordenadas do VGA
+            pixel_x      => pixel_x,
+            pixel_y      => pixel_y,
+            video_active => video_active,
+            
+            -- Enviando as cores geradas para o cabo
+            r            => ppu_r,
+            g            => ppu_g,
+            b            => ppu_b
+        );
 
+    -- 3. O Controlador VGA (A Placa de Vídeo)
     instanciaVGA_Controler: entity work.VGA_Controller
         port map (
-            r_in => (others => '0'),
-            g_in => (others => '0'),
-            b_in => (others => '0'),
-            pixel_clk => pixel_clk,
-            reset_n => '1', 
-            VGA_R => VGA_R,
-            VGA_G => VGA_G,
-            VGA_B => VGA_B,
-            VGA_HS => VGA_HS,
-            VGA_VS => VGA_VS,
-            VGA_BLANK_N => VGA_BLANK_N,
-            VGA_SYNC_N => VGA_SYNC_N,
-            VGA_CLK => VGA_CLK,
-            pixel_x => pixel_x,
-            pixel_y => pixel_y,
+            r_in         => ppu_r,      -- Agora recebe a cor da PPU!
+            g_in         => ppu_g,      -- Agora recebe a cor da PPU!
+            b_in         => ppu_b,      -- Agora recebe a cor da PPU!
+            
+            pixel_clk    => pixel_clk,
+            reset_n      => '1', 
+           
+            VGA_R        => VGA_R,
+            VGA_G        => VGA_G,
+            VGA_B        => VGA_B,
+            VGA_HS       => VGA_HS,
+            VGA_VS       => VGA_VS,
+            VGA_BLANK_N  => VGA_BLANK_N,
+            VGA_SYNC_N   => VGA_SYNC_N,
+            VGA_CLK      => VGA_CLK,
+            
+            -- Devolve as coordenadas para a PPU ler
+            pixel_x      => pixel_x,
+            pixel_y      => pixel_y,
             video_active => video_active
         );
-end architecture;
+
+END architecture;
