@@ -2,7 +2,7 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-ENTITY VGA_Controller IS
+ENTITY VGA IS
     PORT (
         -- Clock e reset
         pixel_clk    : IN  STD_LOGIC;
@@ -28,9 +28,9 @@ ENTITY VGA_Controller IS
         VGA_SYNC_N   : OUT STD_LOGIC := '1';
         VGA_CLK      : OUT STD_LOGIC
     );
-END VGA_Controller;
+END VGA;
 
-ARCHITECTURE Behavioral OF VGA_Controller IS
+ARCHITECTURE Behavioral OF VGA IS
 
     SIGNAL x_counter : INTEGER RANGE 0 TO 799 := 0;
     SIGNAL y_counter : INTEGER RANGE 0 TO 523 := 0;

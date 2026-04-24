@@ -4,10 +4,8 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY rom IS
     PORT (
-        -- banco: '0' fundo, '1' sprite
-        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-        -- endereco para leitura
-        addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
+        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0); -- banco: '0' fundo, '10' botão
+        addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0); -- Valor reusltante dos endereços x e y do pixel atual, que indica o valor do tile de fundo ou do botão a ser desenhado
         data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
     );
 END rom;
@@ -320,9 +318,6 @@ ARCHITECTURE behavioral OF rom IS
         x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00"
     );
 
-    -- Sprite 16x16 preenchido (indice 1)
-    CONSTANT sprite_storage : sprite_array := (OTHERS => x"01");
-
     CONSTANT button_storage : button_array := (
         x"00", x"00", x"01", x"01", x"01", x"00", x"00",
         x"00", x"01", x"01", x"01", x"01", x"01", x"00",
@@ -333,7 +328,6 @@ ARCHITECTURE behavioral OF rom IS
         x"00", x"00", x"01", x"01", x"01", x"00", x"00"
     );
 BEGIN
-    -- Seleciona o banco e retorna o dado do endereco.
     PROCESS(bank_sel, addr)
         VARIABLE idx : INTEGER;
     BEGIN
@@ -345,12 +339,7 @@ BEGIN
             ELSE
                 data_out <= x"00";
             END IF;
-        ELSIF bank_sel = "01" THEN
-            IF idx >= 0 AND idx <= 255 THEN
-                data_out <= sprite_storage(idx);
-            ELSE
-                data_out <= x"00";
-            END IF;
+
         ELSIF bank_sel = "10" THEN
             IF idx >= 0 AND idx <= 48 THEN
                 data_out <= button_storage(idx);

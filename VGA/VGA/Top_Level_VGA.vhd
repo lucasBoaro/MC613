@@ -2,7 +2,7 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-ENTITY ControladorVGA IS 
+ENTITY Top_Level_VGA IS 
     PORT(
         -- Clock principal da placa
         CLK_50       : IN  STD_LOGIC;
@@ -21,9 +21,9 @@ ENTITY ControladorVGA IS
         VGA_SYNC_N   : OUT STD_LOGIC := '1';              
         VGA_CLK      : OUT STD_LOGIC                   
     );
-END ControladorVGA;
+END Top_Level_VGA;
 
-ARCHITECTURE Behavioral OF ControladorVGA IS
+ARCHITECTURE Behavioral OF Top_Level_VGA IS
 
     -- Sinais internos
     SIGNAL pixel_clk    : STD_LOGIC;
@@ -73,7 +73,7 @@ BEGIN
         );
 
     -- 3) Controlador VGA envia sincronismo e vídeo
-    instanciaVGA_Controler: entity work.VGA_Controller
+    instanciaVGA: entity work.VGA
         port map (
             r_in         => ppu_r,
             g_in         => ppu_g,
