@@ -106,7 +106,7 @@ architecture behavioral of VGAController is
                     VGA_G <= g_in;
                     VGA_B <= b_in;
                 else 
-                    VGA_R <= (others => '0')
+                    VGA_R <= (others => '0');
                     VGA_G <= (others => '0');
                     VGA_B <= (others => '0');
                 end if;

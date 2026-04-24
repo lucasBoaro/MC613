@@ -23,7 +23,7 @@ ARCHITECTURE behavior OF PPU IS
 
     COMPONENT rom IS
         PORT (
-            bank_sel : IN STD_LOGIC;
+            bank_sel : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
             addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
             data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
         );
@@ -77,7 +77,27 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL background_tile_linear_index: INTEGER RANGE 0 TO 4799;
     SIGNAL background_tile_identifier  : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
+    SIGNAL botoes_hit     : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL btn_rom_data   : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL btn_rom_addr   : STD_LOGIC_VECTOR(12 DOWNTO 0);
+    SIGNAL btn_r, btn_g, btn_b : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL btn_active     : STD_LOGIC;
+    SIGNAL pixel_x_btn_offset : UNSIGNED(9 DOWNTO 0);
+
 BEGIN
+    -- DEFINIR O RANGE CERTO DE CADA BOTAO (4 botoes de 7x7 pixels cada)
+    botoes_hit(0) <= '1' WHEN (pixel_x_unsigned >= 10 AND pixel_x_unsigned < 17) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
+    botoes_hit(1) <= '1' WHEN (pixel_x_unsigned >= 20 AND pixel_x_unsigned < 27) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
+    botoes_hit(2) <= '1' WHEN (pixel_x_unsigned >= 30 AND pixel_x_unsigned < 37) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
+    botoes_hit(3) <= '1' WHEN (pixel_x_unsigned >= 40 AND pixel_x_unsigned < 47) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
+
+    pixel_x_btn_offset <= pixel_x_unsigned - 10 WHEN botoes_hit(0) = '1' ELSE
+                          pixel_x_unsigned - 20 WHEN botoes_hit(1) = '1' ELSE
+                          pixel_x_unsigned - 30 WHEN botoes_hit(2) = '1' ELSE
+                          pixel_x_unsigned - 40 WHEN botoes_hit(3) = '1' ELSE (OTHERS => '0');
+
+    -- Calculo do endereco da ROM: (Y_offset * 7) + X_offset
+    btn_rom_addr <= STD_LOGIC_VECTOR(RESIZE(((pixel_y_unsigned - 10) * 7) + pixel_x_btn_offset, 13));
 
     -- Conversao das coordenadas atuais para unsigned.
     pixel_x_unsigned <= UNSIGNED(pixel_x);
@@ -132,6 +152,25 @@ BEGIN
     sprite_red_channel   <= x"FF" WHEN sprite_rom_data /= x"00" ELSE x"00";
     sprite_green_channel <= x"00";
     sprite_blue_channel  <= x"00";
+
+    PROCESS(botoes_hit, buttons, btn_rom_data)
+    BEGIN
+        btn_r <= x"00"; btn_g <= x"00"; btn_b <= x"00"; btn_active <= '0';
+        
+        
+        IF (botoes_hit /= "0000") AND (btn_rom_data = x"01") THEN
+            btn_active <= '1';
+            
+            IF (botoes_hit(0) = '1' AND buttons(0) = '0') OR 
+               (botoes_hit(1) = '1' AND buttons(1) = '0') OR
+               (botoes_hit(2) = '1' AND buttons(2) = '0') OR
+               (botoes_hit(3) = '1' AND buttons(3) = '0') THEN
+                btn_g <= x"FF"; -- Verde
+            ELSE
+                btn_r <= x"FF"; -- Vermelho
+            END IF;
+        END IF;
+    END PROCESS;
 
     -- Atualizacao das posicoes Y na OAM durante o blanking.
     PROCESS(clk, reset_n)
@@ -194,14 +233,14 @@ BEGIN
                                    x"00" WHEN OTHERS;
 
     -- Composicao final: sprite sobre fundo.
-    r <= sprite_red_channel WHEN sprite_is_active = '1' ELSE background_red_channel;
-    g <= sprite_green_channel WHEN sprite_is_active = '1' ELSE background_green_channel;
-    b <= sprite_blue_channel WHEN sprite_is_active = '1' ELSE background_blue_channel;
+    r <= sprite_red_channel   WHEN sprite_is_active = '1' ELSE btn_r WHEN btn_active = '1' ELSE background_red_channel;
+    g <= sprite_green_channel WHEN sprite_is_active = '1' ELSE btn_g WHEN btn_active = '1' ELSE background_green_channel;
+    b <= sprite_blue_channel  WHEN sprite_is_active = '1' ELSE btn_b WHEN btn_active = '1' ELSE background_blue_channel;
 
     -- Banco 0: fundo.
     background_rom_instance : rom
         PORT MAP (
-            bank_sel => '0',
+            bank_sel => "00",
             addr     => background_rom_address,
             data_out => background_rom_data
         );
@@ -209,7 +248,7 @@ BEGIN
     -- Banco 1: sprite.
     sprite_rom_instance : rom
         PORT MAP (
-            bank_sel => '1',
+            bank_sel => "01",
             addr     => sprite_rom_address,
             data_out => sprite_rom_data
         );
@@ -222,6 +261,13 @@ BEGIN
             addr     => object_attribute_address_bus,
             data_in  => object_attribute_data_in,
             data_out => object_attribute_data_out
+        );
+
+    button_rom_instance : rom
+        PORT MAP (
+            bank_sel => "10",
+            addr     => btn_rom_addr,
+            data_out => btn_rom_data
         );
 
 END behavior;
