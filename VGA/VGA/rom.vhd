@@ -5,7 +5,7 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY rom IS
     PORT (
         -- banco: '0' fundo, '1' sprite
-        bank_sel : IN STD_LOGIC(1 DOWNTO 0);
+        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         -- endereco para leitura
         addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
         data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)

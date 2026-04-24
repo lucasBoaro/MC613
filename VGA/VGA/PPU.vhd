@@ -29,48 +29,30 @@ ARCHITECTURE behavior OF PPU IS
         );
     END COMPONENT;
 
-    COMPONENT ram IS
-        PORT (
-            clock    : IN STD_LOGIC;
-            wr_en    : IN STD_LOGIC;
-            addr     : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-            data_in  : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
-            data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
-        );
-    END COMPONENT;
-
     SIGNAL background_red_channel   : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL background_green_channel : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL background_blue_channel  : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-    SIGNAL sprite_red_channel       : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL sprite_green_channel     : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL sprite_blue_channel      : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL sprite_is_active         : STD_LOGIC;
+    SIGNAL sprite_r                 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_g                 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_b                 : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_active            : STD_LOGIC;
 
     SIGNAL background_rom_data      : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL sprite_rom_data          : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_data              : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL background_rom_address   : STD_LOGIC_VECTOR(12 DOWNTO 0);
-    SIGNAL sprite_rom_address       : STD_LOGIC_VECTOR(12 DOWNTO 0);
-
-    SIGNAL object_attribute_write_enable : STD_LOGIC;
-    SIGNAL object_attribute_address_bus  : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL object_attribute_data_in      : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL object_attribute_data_out     : STD_LOGIC_VECTOR(7 DOWNTO 0);
-
-    SIGNAL sprite_scan_index           : INTEGER RANGE 0 TO 9 := 0;
-    SIGNAL sprite_write_address_index  : INTEGER RANGE 0 TO 9 := 0;
-    SIGNAL sprite_read_address_bus     : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_addr              : STD_LOGIC_VECTOR(12 DOWNTO 0);
 
     SIGNAL pixel_x_unsigned            : UNSIGNED(9 DOWNTO 0);
     SIGNAL pixel_y_unsigned            : UNSIGNED(9 DOWNTO 0);
-    SIGNAL current_sprite_y_unsigned   : UNSIGNED(9 DOWNTO 0);
-    SIGNAL pixel_offset_inside_sprite_x : UNSIGNED(9 DOWNTO 0);
-    SIGNAL pixel_offset_inside_sprite_y : UNSIGNED(9 DOWNTO 0);
+    SIGNAL sprite_y                    : UNSIGNED(9 DOWNTO 0);
+    SIGNAL sprite_off_x                : UNSIGNED(9 DOWNTO 0);
+    SIGNAL sprite_off_y                : UNSIGNED(9 DOWNTO 0);
 
-    SIGNAL selected_sprite_identifier  : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL selected_sprite_origin_x    : UNSIGNED(9 DOWNTO 0);
-    SIGNAL selected_sprite_is_hit      : STD_LOGIC;
+    SIGNAL sprite_id                  : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL sprite_switch_on           : STD_LOGIC;
+    SIGNAL sprite_x_origin            : UNSIGNED(9 DOWNTO 0);
+    SIGNAL sprite_hit                 : STD_LOGIC;
 
     SIGNAL background_tile_column      : INTEGER RANGE 0 TO 79;
     SIGNAL background_tile_row         : INTEGER RANGE 0 TO 59;
@@ -90,22 +72,28 @@ BEGIN
     pixel_x_unsigned <= UNSIGNED(pixel_x);
     pixel_y_unsigned <= UNSIGNED(pixel_y);
 
-    -- DEFINIR O RANGE CERTO DE CADA BOTAO (4 botoes de 7x7 pixels cada)
-    botoes_hit(0) <= '1' WHEN (pixel_x_unsigned >= 160 AND pixel_x_unsigned < 217) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
-    botoes_hit(1) <= '1' WHEN (pixel_x_unsigned >= 256 AND pixel_x_unsigned < 513) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
-    botoes_hit(2) <= '1' WHEN (pixel_x_unsigned >= 552 AND pixel_x_unsigned < 609) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
-    botoes_hit(3) <= '1' WHEN (pixel_x_unsigned >= 648 AND pixel_x_unsigned < 705) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
+
+
+--===========================BOTOES==============================================
+    -- 4 botoes de 56x56 (sprite 7x7 escalado por 8), alinhados horizontalmente.
+    botoes_hit(0) <= '1' WHEN (pixel_x_unsigned >= 160 AND pixel_x_unsigned < 216) AND (pixel_y_unsigned >= 280 AND pixel_y_unsigned < 336) ELSE '0';
+    botoes_hit(1) <= '1' WHEN (pixel_x_unsigned >= 256 AND pixel_x_unsigned < 312) AND (pixel_y_unsigned >= 280 AND pixel_y_unsigned < 336) ELSE '0';
+    botoes_hit(2) <= '1' WHEN (pixel_x_unsigned >= 352 AND pixel_x_unsigned < 408) AND (pixel_y_unsigned >= 280 AND pixel_y_unsigned < 336) ELSE '0';
+    botoes_hit(3) <= '1' WHEN (pixel_x_unsigned >= 448 AND pixel_x_unsigned < 504) AND (pixel_y_unsigned >= 280 AND pixel_y_unsigned < 336) ELSE '0';
 
     pixel_x_btn_offset <= pixel_x_unsigned - 160 WHEN botoes_hit(0) = '1' ELSE
                           pixel_x_unsigned - 256 WHEN botoes_hit(1) = '1' ELSE
-                          pixel_x_unsigned - 552 WHEN botoes_hit(2) = '1' ELSE
-                          pixel_x_unsigned - 648 WHEN botoes_hit(3) = '1' ELSE (OTHERS => '0');
+                          pixel_x_unsigned - 352 WHEN botoes_hit(2) = '1' ELSE
+                          pixel_x_unsigned - 448 WHEN botoes_hit(3) = '1' ELSE (OTHERS => '0');
 
     -- Calculo do endereco da ROM: (Y_offset * 7) + X_offset
-    btn_rom_addr <= STD_LOGIC_VECTOR(RESIZE(((pixel_y_unsigned - 288)/8 * 7) + (pixel_x_btn_offset/8), 13));
+    btn_rom_addr <= STD_LOGIC_VECTOR(RESIZE(((pixel_y_unsigned - 280)/8 * 7) + (pixel_x_btn_offset/8), 13));
+
+
+--=========================SPRITES================================================
 
     -- Selecao do sprite pela faixa horizontal da tela.
-    selected_sprite_identifier <=
+    sprite_id <=
         x"00" WHEN (pixel_x_unsigned >= 64  AND pixel_x_unsigned < 80)  ELSE
         x"01" WHEN (pixel_x_unsigned >= 128 AND pixel_x_unsigned < 144) ELSE
         x"02" WHEN (pixel_x_unsigned >= 192 AND pixel_x_unsigned < 208) ELSE
@@ -117,42 +105,54 @@ BEGIN
         x"08" WHEN (pixel_x_unsigned >= 576 AND pixel_x_unsigned < 592) ELSE
         x"FF";
 
+        
     -- Posicao X de referencia para cada sprite.
-    selected_sprite_origin_x <=
-        TO_UNSIGNED(64, 10) WHEN selected_sprite_identifier = x"00" ELSE
-        TO_UNSIGNED(128, 10) WHEN selected_sprite_identifier = x"01" ELSE
-        TO_UNSIGNED(192, 10) WHEN selected_sprite_identifier = x"02" ELSE
-        TO_UNSIGNED(256, 10) WHEN selected_sprite_identifier = x"03" ELSE
-        TO_UNSIGNED(320, 10) WHEN selected_sprite_identifier = x"04" ELSE
-        TO_UNSIGNED(384, 10) WHEN selected_sprite_identifier = x"05" ELSE
-        TO_UNSIGNED(448, 10) WHEN selected_sprite_identifier = x"06" ELSE
-        TO_UNSIGNED(512, 10) WHEN selected_sprite_identifier = x"07" ELSE
-        TO_UNSIGNED(576, 10) WHEN selected_sprite_identifier = x"08" ELSE
+    sprite_x_origin <=
+        TO_UNSIGNED(64, 10) WHEN sprite_id = x"00" ELSE
+        TO_UNSIGNED(128, 10) WHEN sprite_id = x"01" ELSE
+        TO_UNSIGNED(192, 10) WHEN sprite_id = x"02" ELSE
+        TO_UNSIGNED(256, 10) WHEN sprite_id = x"03" ELSE
+        TO_UNSIGNED(320, 10) WHEN sprite_id = x"04" ELSE
+        TO_UNSIGNED(384, 10) WHEN sprite_id = x"05" ELSE
+        TO_UNSIGNED(448, 10) WHEN sprite_id = x"06" ELSE
+        TO_UNSIGNED(512, 10) WHEN sprite_id = x"07" ELSE
+        TO_UNSIGNED(576, 10) WHEN sprite_id = x"08" ELSE
         TO_UNSIGNED(0, 10);
 
-    sprite_read_address_bus <= selected_sprite_identifier WHEN selected_sprite_identifier /= x"FF" ELSE x"00";
-    current_sprite_y_unsigned <= RESIZE(UNSIGNED(object_attribute_data_out), 10);
+    sprite_switch_on <=
+        switches(9) WHEN sprite_id = x"00" ELSE
+        switches(8) WHEN sprite_id = x"01" ELSE
+        switches(7) WHEN sprite_id = x"02" ELSE
+        switches(6) WHEN sprite_id = x"03" ELSE
+        switches(5) WHEN sprite_id = x"04" ELSE
+        switches(4) WHEN sprite_id = x"05" ELSE
+        switches(3) WHEN sprite_id = x"06" ELSE
+        switches(2) WHEN sprite_id = x"07" ELSE
+        switches(1) WHEN sprite_id = x"08" ELSE
+        '0';
+
+    sprite_y <= TO_UNSIGNED(160, 10) WHEN sprite_switch_on = '1' ELSE TO_UNSIGNED(192, 10);
 
     -- Teste de cobertura vertical do sprite (16x16).
-    selected_sprite_is_hit <= '1'
-        WHEN (selected_sprite_identifier /= x"FF")
-         AND (pixel_y_unsigned >= current_sprite_y_unsigned)
-         AND (pixel_y_unsigned < current_sprite_y_unsigned + 16)
+    sprite_hit <= '1'
+        WHEN (sprite_id /= x"FF")
+         AND (pixel_y_unsigned >= sprite_y)
+         AND (pixel_y_unsigned < sprite_y + 16)
         ELSE '0';
 
-    pixel_offset_inside_sprite_x <= pixel_x_unsigned - selected_sprite_origin_x;
-    pixel_offset_inside_sprite_y <= pixel_y_unsigned - current_sprite_y_unsigned;
+    sprite_off_x <= pixel_x_unsigned - sprite_x_origin;
+    sprite_off_y <= pixel_y_unsigned - sprite_y;
 
     -- Endereco do pixel dentro do sprite na ROM.
-    sprite_rom_address <= (12 DOWNTO 8 => '0')
-        & STD_LOGIC_VECTOR(pixel_offset_inside_sprite_y(3 DOWNTO 0) & pixel_offset_inside_sprite_x(3 DOWNTO 0))
-        WHEN selected_sprite_is_hit = '1' ELSE (OTHERS => '0');
+    sprite_addr <= (12 DOWNTO 8 => '0')
+        & STD_LOGIC_VECTOR(sprite_off_y(3 DOWNTO 0) & sprite_off_x(3 DOWNTO 0))
+        WHEN sprite_hit = '1' ELSE (OTHERS => '0');
 
-    sprite_is_active <= '1' WHEN (selected_sprite_is_hit = '1') AND (sprite_rom_data /= x"00") ELSE '0';
+    sprite_active <= '1' WHEN (sprite_hit = '1') AND (sprite_data /= x"00") ELSE '0';
 
-    sprite_red_channel   <= x"FF" WHEN sprite_rom_data /= x"00" ELSE x"00";
-    sprite_green_channel <= x"00";
-    sprite_blue_channel  <= x"00";
+    sprite_r <= x"FF" WHEN sprite_data /= x"00" ELSE x"00";
+    sprite_g <= x"00";
+    sprite_b <= x"00";
 
     PROCESS(botoes_hit, buttons, btn_rom_data)
     BEGIN
@@ -161,47 +161,16 @@ BEGIN
         IF (botoes_hit /= "0000") AND (btn_rom_data = x"01") THEN
             btn_active <= '1';
             
-            IF (botoes_hit(0) = '1' AND buttons(0) = '0') OR 
-               (botoes_hit(1) = '1' AND buttons(1) = '0') OR
-               (botoes_hit(2) = '1' AND buttons(2) = '0') OR
-               (botoes_hit(3) = '1' AND buttons(3) = '0') THEN
+                IF (botoes_hit(0) = '1' AND buttons(3) = '0') OR 
+                    (botoes_hit(1) = '1' AND buttons(2) = '0') OR
+                    (botoes_hit(2) = '1' AND buttons(1) = '0') OR
+                    (botoes_hit(3) = '1' AND buttons(0) = '0') THEN
                 btn_g <= x"FF"; -- Verde
             ELSE
                 btn_r <= x"FF"; -- Vermelho
             END IF;
         END IF;
     END PROCESS;
-
-    -- Atualizacao das posicoes Y na OAM durante o blanking.
-    PROCESS(clk, reset_n)
-    BEGIN
-        IF reset_n = '0' THEN
-            sprite_scan_index <= 0;
-            object_attribute_write_enable <= '0';
-        ELSIF RISING_EDGE(clk) THEN
-            IF video_active = '0' THEN
-                object_attribute_write_enable <= '1';
-                sprite_write_address_index <= sprite_scan_index;
-
-                IF switches(9 - sprite_scan_index) = '1' THEN
-                    object_attribute_data_in <= STD_LOGIC_VECTOR(TO_UNSIGNED(160, 8));
-                ELSE
-                    object_attribute_data_in <= STD_LOGIC_VECTOR(TO_UNSIGNED(192, 8));
-                END IF;
-
-                IF sprite_scan_index = 9 THEN
-                    sprite_scan_index <= 0;
-                ELSE
-                    sprite_scan_index <= sprite_scan_index + 1;
-                END IF;
-            ELSE
-                object_attribute_write_enable <= '0';
-            END IF;
-        END IF;
-    END PROCESS;
-
-    object_attribute_address_bus <= STD_LOGIC_VECTOR(TO_UNSIGNED(sprite_write_address_index, 8))
-        WHEN object_attribute_write_enable = '1' ELSE sprite_read_address_bus;
 
     -- Leitura do tile de fundo a partir da coordenada de tela.
     background_tile_column <= TO_INTEGER(pixel_x_unsigned(9 DOWNTO 3));
@@ -233,9 +202,9 @@ BEGIN
                                    x"00" WHEN OTHERS;
 
     -- Composicao final: sprite sobre fundo.
-    r <= sprite_red_channel   WHEN sprite_is_active = '1' ELSE btn_r WHEN btn_active = '1' ELSE background_red_channel;
-    g <= sprite_green_channel WHEN sprite_is_active = '1' ELSE btn_g WHEN btn_active = '1' ELSE background_green_channel;
-    b <= sprite_blue_channel  WHEN sprite_is_active = '1' ELSE btn_b WHEN btn_active = '1' ELSE background_blue_channel;
+    r <= sprite_r WHEN sprite_active = '1' ELSE btn_r WHEN btn_active = '1' ELSE background_red_channel;
+    g <= sprite_g WHEN sprite_active = '1' ELSE btn_g WHEN btn_active = '1' ELSE background_green_channel;
+    b <= sprite_b WHEN sprite_active = '1' ELSE btn_b WHEN btn_active = '1' ELSE background_blue_channel;
 
     -- Banco 0: fundo.
     background_rom_instance : rom
@@ -249,18 +218,8 @@ BEGIN
     sprite_rom_instance : rom
         PORT MAP (
             bank_sel => "01",
-            addr     => sprite_rom_address,
-            data_out => sprite_rom_data
-        );
-
-    -- RAM de atributos de sprite (posicao Y).
-    object_attribute_memory_instance : ram
-        PORT MAP (
-            clock    => clk,
-            wr_en    => object_attribute_write_enable,
-            addr     => object_attribute_address_bus,
-            data_in  => object_attribute_data_in,
-            data_out => object_attribute_data_out
+            addr     => sprite_addr,
+            data_out => sprite_data
         );
 
     button_rom_instance : rom

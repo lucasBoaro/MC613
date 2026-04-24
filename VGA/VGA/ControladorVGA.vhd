@@ -96,18 +96,6 @@ BEGIN
             video_active => video_active
         );
 
-    instancia_PPU: entity work.PPU
-        port map (
-            clk          => pixel_clk,
-            reset_n      => '1',
-            switches     => SW,     
-            buttons      => KEY,    
-            pixel_x      => pixel_x,
-            pixel_y      => pixel_y,
-            video_active => video_active,
-            r            => ppu_r,
-            g            => ppu_g,
-            b            => ppu_b
-        );
+
 
 END architecture;
