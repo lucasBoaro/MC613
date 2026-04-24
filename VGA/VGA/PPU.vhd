@@ -85,23 +85,24 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL pixel_x_btn_offset : UNSIGNED(9 DOWNTO 0);
 
 BEGIN
-    -- DEFINIR O RANGE CERTO DE CADA BOTAO (4 botoes de 7x7 pixels cada)
-    botoes_hit(0) <= '1' WHEN (pixel_x_unsigned >= 10 AND pixel_x_unsigned < 17) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
-    botoes_hit(1) <= '1' WHEN (pixel_x_unsigned >= 20 AND pixel_x_unsigned < 27) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
-    botoes_hit(2) <= '1' WHEN (pixel_x_unsigned >= 30 AND pixel_x_unsigned < 37) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
-    botoes_hit(3) <= '1' WHEN (pixel_x_unsigned >= 40 AND pixel_x_unsigned < 47) AND (pixel_y_unsigned >= 10 AND pixel_y_unsigned < 17) ELSE '0';
-
-    pixel_x_btn_offset <= pixel_x_unsigned - 10 WHEN botoes_hit(0) = '1' ELSE
-                          pixel_x_unsigned - 20 WHEN botoes_hit(1) = '1' ELSE
-                          pixel_x_unsigned - 30 WHEN botoes_hit(2) = '1' ELSE
-                          pixel_x_unsigned - 40 WHEN botoes_hit(3) = '1' ELSE (OTHERS => '0');
-
-    -- Calculo do endereco da ROM: (Y_offset * 7) + X_offset
-    btn_rom_addr <= STD_LOGIC_VECTOR(RESIZE(((pixel_y_unsigned - 10) * 7) + pixel_x_btn_offset, 13));
 
     -- Conversao das coordenadas atuais para unsigned.
     pixel_x_unsigned <= UNSIGNED(pixel_x);
     pixel_y_unsigned <= UNSIGNED(pixel_y);
+
+    -- DEFINIR O RANGE CERTO DE CADA BOTAO (4 botoes de 7x7 pixels cada)
+    botoes_hit(0) <= '1' WHEN (pixel_x_unsigned >= 160 AND pixel_x_unsigned < 217) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
+    botoes_hit(1) <= '1' WHEN (pixel_x_unsigned >= 256 AND pixel_x_unsigned < 513) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
+    botoes_hit(2) <= '1' WHEN (pixel_x_unsigned >= 552 AND pixel_x_unsigned < 609) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
+    botoes_hit(3) <= '1' WHEN (pixel_x_unsigned >= 648 AND pixel_x_unsigned < 705) AND (pixel_y_unsigned >= 288 AND pixel_y_unsigned < 344) ELSE '0';
+
+    pixel_x_btn_offset <= pixel_x_unsigned - 160 WHEN botoes_hit(0) = '1' ELSE
+                          pixel_x_unsigned - 256 WHEN botoes_hit(1) = '1' ELSE
+                          pixel_x_unsigned - 552 WHEN botoes_hit(2) = '1' ELSE
+                          pixel_x_unsigned - 648 WHEN botoes_hit(3) = '1' ELSE (OTHERS => '0');
+
+    -- Calculo do endereco da ROM: (Y_offset * 7) + X_offset
+    btn_rom_addr <= STD_LOGIC_VECTOR(RESIZE(((pixel_y_unsigned - 288)/8 * 7) + (pixel_x_btn_offset/8), 13));
 
     -- Selecao do sprite pela faixa horizontal da tela.
     selected_sprite_identifier <=
@@ -156,7 +157,6 @@ BEGIN
     PROCESS(botoes_hit, buttons, btn_rom_data)
     BEGIN
         btn_r <= x"00"; btn_g <= x"00"; btn_b <= x"00"; btn_active <= '0';
-        
         
         IF (botoes_hit /= "0000") AND (btn_rom_data = x"01") THEN
             btn_active <= '1';
