@@ -39,7 +39,7 @@ ARCHITECTURE Behavioral OF VGA IS
     SIGNAL video_on  : STD_LOGIC;
 
 BEGIN
-
+    -- Processo de contagem de pixels e linhas
     PROCESS(pixel_clk, reset_n)
     BEGIN
         IF reset_n = '0' THEN

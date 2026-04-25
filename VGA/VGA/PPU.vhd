@@ -19,7 +19,7 @@ END PPU;
 
 ARCHITECTURE behavior OF PPU IS
 
-    CONSTANT BG_COLS : INTEGER := 80;
+    CONSTANT BG_COLUMNS : INTEGER := 80; -- Número de colunas (fixo)
 
     COMPONENT rom IS
         PORT (
@@ -46,9 +46,9 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL sprite_y                    : UNSIGNED(9 DOWNTO 0);
 
     SIGNAL sprite_id                  : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL sprite_switch_on           : STD_LOGIC;
+    SIGNAL ram_sprite_switch_on       : STD_LOGIC;
 
-    SIGNAL bg_col : INTEGER RANGE 0 TO 79;
+    SIGNAL bg_column : INTEGER RANGE 0 TO 79;
     SIGNAL bg_row : INTEGER RANGE 0 TO 59;
     SIGNAL bg_idx : INTEGER RANGE 0 TO 4799 := 0;
     SIGNAL bg_id  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
@@ -99,7 +99,7 @@ BEGIN
 
 --=========================DEFINIÇÃO: SPRITES================================================
 
-    -- Identifica se a posição atual é a de um sprite
+    -- Identifica se a posição atual é a de um sprite e qual o sprite com base nas coordenadas
     sprite_id <=
         x"00" WHEN (pixel_x_unsigned >= 64  AND pixel_x_unsigned < 80)  ELSE
         x"01" WHEN (pixel_x_unsigned >= 128 AND pixel_x_unsigned < 144) ELSE
@@ -113,7 +113,7 @@ BEGIN
         x"FF";
     
     -- Se está na faixa de um sprite, verifica o valor do switch correspondente 
-    sprite_switch_on <=
+    ram_sprite_switch_on <=
         switches(9) WHEN sprite_id = x"00" ELSE
         switches(8) WHEN sprite_id = x"01" ELSE
         switches(7) WHEN sprite_id = x"02" ELSE
@@ -126,7 +126,7 @@ BEGIN
         '0';
 
     -- Define a posição Y do sprite, linha 160 se ligado, linha 192 se desligado
-    sprite_y <= TO_UNSIGNED(160, 10) WHEN sprite_switch_on = '1' ELSE TO_UNSIGNED(192, 10);
+    sprite_y <= TO_UNSIGNED(160, 10) WHEN ram_sprite_switch_on = '1' ELSE TO_UNSIGNED(192, 10);
 
     -- Sprite_id verificou a posição horizontal, agora Sprite_active verifica se o pixel atual está na faixa vertical do sprite
     sprite_active <= '1' WHEN (sprite_id /= x"FF") AND (pixel_y_unsigned >= sprite_y) AND (pixel_y_unsigned < sprite_y + 16) ELSE '0';
@@ -136,9 +136,9 @@ BEGIN
     sprite_b <= x"00";
 
 --=========================DEFINIÇÃO: BACKGROUND================================================
-    bg_col <= TO_INTEGER(pixel_x_unsigned(9 DOWNTO 3));
+    bg_column <= TO_INTEGER(pixel_x_unsigned(9 DOWNTO 3));
     bg_row <= TO_INTEGER(pixel_y_unsigned(9 DOWNTO 3));
-    bg_idx <= (bg_row * BG_COLS) + bg_col;
+    bg_idx <= (bg_row * BG_COLUMNS) + bg_column;
     bg_addr <= STD_LOGIC_VECTOR(TO_UNSIGNED(bg_idx, 13));
     bg_id <= bg_data;
 

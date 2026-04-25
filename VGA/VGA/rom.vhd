@@ -4,7 +4,7 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY rom IS
     PORT (
-        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0); -- banco: '0' fundo, '10' botão
+        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0); 
         addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0); -- Valor reusltante dos endereços x e y do pixel atual, que indica o valor do tile de fundo ou do botão a ser desenhado
         data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
     );
@@ -15,6 +15,7 @@ ARCHITECTURE behavioral OF rom IS
     TYPE sprite_array IS ARRAY (0 TO 255) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
     TYPE button_array IS ARRAY (0 TO 48) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
 
+    -- Memória rom de fundo (80 colunas x 60 linhas = 4800 tiles)
     CONSTANT bg_storage : bg_array := (
         x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00",
         x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00",
@@ -317,7 +318,7 @@ ARCHITECTURE behavioral OF rom IS
         x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00",
         x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00", x"00"
     );
-
+    -- Memória rom de botões (7x7)
     CONSTANT button_storage : button_array := (
         x"00", x"00", x"01", x"01", x"01", x"00", x"00",
         x"00", x"01", x"01", x"01", x"01", x"01", x"00",
@@ -327,12 +328,14 @@ ARCHITECTURE behavioral OF rom IS
         x"00", x"01", x"01", x"01", x"01", x"01", x"00",
         x"00", x"00", x"01", x"01", x"01", x"00", x"00"
     );
+
 BEGIN
     PROCESS(bank_sel, addr)
         VARIABLE idx : INTEGER;
     BEGIN
         idx := TO_INTEGER(UNSIGNED(addr));
 
+        -- Lógica de leitura da memória rom do background
         IF bank_sel = "00" THEN
             IF idx >= 0 AND idx <= 4799 THEN
                 data_out <= bg_storage(idx);
@@ -340,6 +343,7 @@ BEGIN
                 data_out <= x"00";
             END IF;
 
+        -- Lógica de leitura da memória rom dos botões
         ELSIF bank_sel = "10" THEN
             IF idx >= 0 AND idx <= 48 THEN
                 data_out <= button_storage(idx);

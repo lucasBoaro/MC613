@@ -48,7 +48,7 @@ ARCHITECTURE Behavioral OF Top_Level_VGA IS
 
 BEGIN
 
-    -- 1) Gera clock de pixel
+    -- Instância do PLL para gerar o clock de pixel (25 MHz)
     instanciaPLL: pll
         port map (
             refclk   => CLK_50,
@@ -57,7 +57,7 @@ BEGIN
             locked   => open
         );
 
-    -- 2) PPU gera a cor de cada pixel
+    -- Instância do PPU para gerar a cor de cada pixel
     instancia_PPU: entity work.PPU
         port map (
             clk          => pixel_clk,
@@ -72,7 +72,7 @@ BEGIN
             b            => ppu_b
         );
 
-    -- 3) Controlador VGA envia sincronismo e vídeo
+    -- Instância do Controlador VGA para enviar sincronismo e vídeo
     instanciaVGA: entity work.VGA
         port map (
             r_in         => ppu_r,
