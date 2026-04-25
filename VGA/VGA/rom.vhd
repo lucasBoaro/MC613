@@ -4,7 +4,7 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY rom IS
     PORT (
-        bank_sel : IN STD_LOGIC_VECTOR(1 DOWNTO 0); 
+        rom_selector : IN STD_LOGIC; 
         addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0); -- Valor reusltante dos endereços x e y do pixel atual, que indica o valor do tile de fundo ou do botão a ser desenhado
         data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
     );
@@ -330,13 +330,13 @@ ARCHITECTURE behavioral OF rom IS
     );
 
 BEGIN
-    PROCESS(bank_sel, addr)
+    PROCESS(rom_selector, addr)
         VARIABLE idx : INTEGER;
     BEGIN
         idx := TO_INTEGER(UNSIGNED(addr));
 
         -- Lógica de leitura da memória rom do background
-        IF bank_sel = "00" THEN
+        IF rom_selector = '0' THEN
             IF idx >= 0 AND idx <= 4799 THEN
                 data_out <= bg_storage(idx);
             ELSE
@@ -344,7 +344,7 @@ BEGIN
             END IF;
 
         -- Lógica de leitura da memória rom dos botões
-        ELSIF bank_sel = "10" THEN
+        ELSIF rom_selector = '1' THEN
             IF idx >= 0 AND idx <= 48 THEN
                 data_out <= button_storage(idx);
             ELSE

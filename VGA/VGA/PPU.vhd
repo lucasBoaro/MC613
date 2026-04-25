@@ -23,7 +23,7 @@ ARCHITECTURE behavior OF PPU IS
 
     COMPONENT rom IS
         PORT (
-            bank_sel : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+            rom_selector : IN STD_LOGIC;
             addr     : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
             data_out : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
         );
@@ -68,14 +68,14 @@ BEGIN
 
     background_rom_instance : rom
         PORT MAP (
-            bank_sel => "00",
+            rom_selector => '0',
             addr     => bg_addr,
             data_out => bg_data
         );
 
     button_rom_instance : rom
         PORT MAP (
-            bank_sel => "10",
+            rom_selector => '1',
             addr     => btn_rom_addr,
             data_out => btn_rom_data
         );
