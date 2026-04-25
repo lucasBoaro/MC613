@@ -61,7 +61,6 @@ BEGIN
     instancia_PPU: entity work.PPU
         port map (
             clk          => pixel_clk,
-            reset_n      => '1',
             switches     => SW,
             buttons      => KEY,
             pixel_x      => pixel_x,
