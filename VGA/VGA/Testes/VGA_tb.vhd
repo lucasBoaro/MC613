@@ -52,7 +52,7 @@ architecture Behavioral of VGA_tb is
     signal tb_vga_blank_n  : STD_LOGIC;
     signal tb_vga_sync_n   : STD_LOGIC;
     signal tb_vga_clk      : STD_LOGIC;
-	 signal sim_finished     : boolean := false; 
+	signal sim_finished     : boolean := false; 
 
     constant clk_period     : time := 40 ns; -- período aproximado de clock de 25.175MHz
 begin
@@ -95,7 +95,7 @@ begin
     test_process: process
         variable line_out : line;
     begin
-        write(line_out, string'("Testando VGA_Controller..."));
+        write(line_out, string'("Testando VGA..."));
         writeline(output, line_out);
 
         -- Teste pixel_x e pixel_y

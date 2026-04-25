@@ -32,7 +32,7 @@ begin
     test_process: process
         variable line_out : line;
     begin
-        write(line_out, string'("Testando rom_Controller..."));
+        write(line_out, string'("Testando rom..."));
         writeline(output, line_out);
 
         -- Testa limites do indice para o banco de fundo
@@ -41,7 +41,7 @@ begin
             wait for 10 ns; -- espera para observar a saída
             assert (tb_data_out = x"00" or tb_data_out = x"01" or tb_data_out = x"02" or tb_data_out = x"03") report "Erro: data_out fora do esperado para addr = " & integer'image(i) severity error;
             if i > 4799 then
-                assert (tb_data_out = x"00") report "Erro: data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
+                assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
             end if;
         end loop;
 
@@ -51,7 +51,7 @@ begin
             tb_addr <= STD_LOGIC_VECTOR(to_unsigned(i, 13));
             wait for 10 ns; -- espera para observar a saída
             if i > 48 then
-                assert (tb_data_out = x"00") report "Erro: data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
+                assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
             end if;
         end loop;
 
@@ -59,19 +59,19 @@ begin
         tb_bank_sel <= "10"; -- Muda para o banco de botões
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(0, 13));
         wait for 10 ns;
-        assert (tb_data_out = x"00") report "Erro: data_out não corresponde ao valor esperado para addr = 0" severity error;
+        assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 0" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(2, 13));
         wait for 10 ns;
-        assert (tb_data_out = x"01") report "Erro: data_out não corresponde ao valor esperado para addr = 2" severity error;
+        assert (tb_data_out = x"01") report "data_out não corresponde ao valor esperado para addr = 2" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(24, 13));
         wait for 10 ns;
-        assert (tb_data_out = x"01") report "Erro: data_out não corresponde ao valor esperado para addr = 24" severity error;
+        assert (tb_data_out = x"01") report "data_out não corresponde ao valor esperado para addr = 24" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(48, 13));
         wait for 10 ns;
-        assert (tb_data_out = x"00") report "Erro: data_out não corresponde ao valor esperado para addr = 48" severity error;
+        assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 48" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(49, 13));
         wait for 10 ns;
-        assert (tb_data_out = x"00") report "Erro: data_out não corresponde ao valor esperado para addr = 49" severity error;
+        assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 49" severity error;
 
         write(line_out, string'("Teste concluido sem erros"));
         writeline(output, line_out);

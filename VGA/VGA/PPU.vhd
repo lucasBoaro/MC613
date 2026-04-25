@@ -8,8 +8,8 @@ ENTITY PPU IS
     reset_n      : IN  STD_LOGIC;
     switches     : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
     buttons      : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
-    pixel_x      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
-    pixel_y      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
+    pixel_x      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');
+    pixel_y      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');
     video_active : IN  STD_LOGIC;
     r            : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
     g            : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -41,8 +41,8 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL bg_data : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL bg_addr : STD_LOGIC_VECTOR(12 DOWNTO 0);
 
-    SIGNAL pixel_x_unsigned            : UNSIGNED(9 DOWNTO 0);
-    SIGNAL pixel_y_unsigned            : UNSIGNED(9 DOWNTO 0);
+    SIGNAL pixel_x_unsigned            : UNSIGNED(9 DOWNTO 0) := (others => '0');
+    SIGNAL pixel_y_unsigned            : UNSIGNED(9 DOWNTO 0) := (others => '0');
     SIGNAL sprite_y                    : UNSIGNED(9 DOWNTO 0);
 
     SIGNAL sprite_id                  : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -50,8 +50,8 @@ ARCHITECTURE behavior OF PPU IS
 
     SIGNAL bg_col : INTEGER RANGE 0 TO 79;
     SIGNAL bg_row : INTEGER RANGE 0 TO 59;
-    SIGNAL bg_idx : INTEGER RANGE 0 TO 4799;
-    SIGNAL bg_id  : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    SIGNAL bg_idx : INTEGER RANGE 0 TO 4799 := 0;
+    SIGNAL bg_id  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
 
     SIGNAL botoes_hit     : STD_LOGIC_VECTOR(3 DOWNTO 0);
     SIGNAL btn_rom_data   : STD_LOGIC_VECTOR(7 DOWNTO 0);
