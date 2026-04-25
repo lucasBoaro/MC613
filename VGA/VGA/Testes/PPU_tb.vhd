@@ -24,7 +24,7 @@ architecture Behavioral of PPU_tb is
     end component;
 
     signal tb_clk          : STD_LOGIC := '0';
-    signal tb_reset_n      : STD_LOGIC := '0';
+    signal tb_reset_n      : STD_LOGIC := '1';
     signal tb_switches     : STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');
     signal tb_buttons      : STD_LOGIC_VECTOR(3 DOWNTO 0) := (others => '1');
     signal tb_pixel_x      : STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');

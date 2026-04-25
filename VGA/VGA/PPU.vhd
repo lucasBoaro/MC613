@@ -48,9 +48,9 @@ ARCHITECTURE behavior OF PPU IS
     SIGNAL sprite_id                  : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL ram_sprite_switch_on       : STD_LOGIC;
 
-    SIGNAL bg_column : INTEGER RANGE 0 TO 79;
-    SIGNAL bg_row : INTEGER RANGE 0 TO 59;
-    SIGNAL bg_idx : INTEGER RANGE 0 TO 4799 := 0;
+    SIGNAL bg_column : INTEGER RANGE 0 TO 99;
+    SIGNAL bg_row : INTEGER RANGE 0 TO 65;
+    SIGNAL bg_idx : INTEGER RANGE 0 TO 6500 := 0;
     SIGNAL bg_id  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
 
     SIGNAL botoes_hit     : STD_LOGIC_VECTOR(3 DOWNTO 0);
