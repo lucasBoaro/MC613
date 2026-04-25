@@ -4,7 +4,6 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY PPU IS
   PORT (
-    clk          : IN  STD_LOGIC;
     switches     : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
     buttons      : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
     pixel_x      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');

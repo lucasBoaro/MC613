@@ -60,7 +60,6 @@ BEGIN
     -- Instância do PPU para gerar a cor de cada pixel
     instancia_PPU: entity work.PPU
         port map (
-            clk          => pixel_clk,
             switches     => SW,
             buttons      => KEY,
             pixel_x      => pixel_x,
