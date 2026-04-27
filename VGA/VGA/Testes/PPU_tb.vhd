@@ -10,8 +10,6 @@ end PPU_tb;
 architecture Behavioral of PPU_tb is
     component PPU
         Port (
-        clk          : IN  STD_LOGIC;
-        reset_n      : IN  STD_LOGIC;
         switches     : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
         buttons      : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
         pixel_x      : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
@@ -23,8 +21,6 @@ architecture Behavioral of PPU_tb is
         );
     end component;
 
-    signal tb_clk          : STD_LOGIC := '0';
-    signal tb_reset_n      : STD_LOGIC := '1';
     signal tb_switches     : STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');
     signal tb_buttons      : STD_LOGIC_VECTOR(3 DOWNTO 0) := (others => '1');
     signal tb_pixel_x      : STD_LOGIC_VECTOR(9 DOWNTO 0) := (others => '0');
@@ -34,14 +30,9 @@ architecture Behavioral of PPU_tb is
     signal tb_g            : STD_LOGIC_VECTOR(7 DOWNTO 0);
     signal tb_b            : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
-	signal sim_finished     : boolean := false; 
-
-    constant clk_period     : time := 40 ns; -- período aproximado de clock de 25.175MHz
 begin
     uut: PPU
         port map (
-            clk          => tb_clk,
-            reset_n      => tb_reset_n,
             switches     => tb_switches,
             buttons      => tb_buttons,
             pixel_x      => tb_pixel_x,
@@ -52,14 +43,6 @@ begin
             b            => tb_b
         );
     
-    clk_process : process  --gerador de clock
-    begin
-        while not sim_finished loop
-            tb_CLK <= '0'; wait for clk_period/2;
-            tb_CLK <= '1'; wait for clk_period/2;
-        end loop;
-        wait;
-    end process;
     
     test_process: process
         variable line_out : line;
