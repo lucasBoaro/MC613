@@ -36,6 +36,8 @@ begin
         writeline(output, line_out);
 
         -- Testa limites do indice para o banco de fundo
+        write(line_out, string'("Verificando se as cores do fundo estão dentro do padrão esperado ..."));
+        writeline(output, line_out);
         tb_bank_sel <= '0';
 		  for i in 0 to 8191 loop
             tb_addr <= STD_LOGIC_VECTOR(to_unsigned(i, 13));
@@ -48,6 +50,8 @@ begin
 
         -- Testa limites do indice para o banco de botões
         tb_bank_sel <= '1'; -- Muda para o banco de botões
+        write(line_out, string'("Verificando se as cores do botão estão dentro do padrão esperado ..."));
+        writeline(output, line_out);
         for i in 0 to 8191 loop
             tb_addr <= STD_LOGIC_VECTOR(to_unsigned(i, 13));
             wait for 10 ns;
@@ -60,17 +64,27 @@ begin
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(0, 13));
         wait for 10 ns;
         assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 0" severity error;
+        write(line_out, string'("Na posicao ")); write(line_out, to_integer(unsigned(tb_addr))); write(line_out, string'(", o ID (esperado 0) foi ")); write(line_out, to_integer(unsigned(tb_data_out)));
+        writeline(output, line_out);
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(2, 13));
         wait for 10 ns;
+        write(line_out, string'("Na posicao ")); write(line_out, to_integer(unsigned(tb_addr))); write(line_out, string'(", o ID (esperado 1) foi ")); write(line_out, to_integer(unsigned(tb_data_out)));
+        writeline(output, line_out);
         assert (tb_data_out = x"01") report "data_out não corresponde ao valor esperado para addr = 2" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(24, 13));
         wait for 10 ns;
+        write(line_out, string'("Na posicao ")); write(line_out, to_integer(unsigned(tb_addr))); write(line_out, string'(", o ID (esperado 1) foi ")); write(line_out, to_integer(unsigned(tb_data_out)));
+        writeline(output, line_out);
         assert (tb_data_out = x"01") report "data_out não corresponde ao valor esperado para addr = 24" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(48, 13));
         wait for 10 ns;
+        write(line_out, string'("Na posicao ")); write(line_out, to_integer(unsigned(tb_addr))); write(line_out, string'(", o ID (esperado 0) foi ")); write(line_out, to_integer(unsigned(tb_data_out)));
+        writeline(output, line_out);
         assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 48" severity error;
         tb_addr <= STD_LOGIC_VECTOR(to_unsigned(49, 13));
         wait for 10 ns;
+        write(line_out, string'("Na posicao ")); write(line_out, to_integer(unsigned(tb_addr))); write(line_out, string'(", o ID (esperado 0) foi ")); write(line_out, to_integer(unsigned(tb_data_out)));
+        writeline(output, line_out);
         assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = 49" severity error;
 
         write(line_out, string'("Teste concluido sem erros"));

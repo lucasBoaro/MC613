@@ -83,18 +83,22 @@ begin
     begin
         write(line_out, string'("Testando Top_Level_VGA"));
         writeline(output, line_out);
-        
+        write(line_out, string'("Verificando se VGA_BLANK_N esta em 0 no sincronismo"));
+        writeline(output, line_out);
+        write(line_out, string'("Verificando se as cores estao em x'00' no sincronismo"));
+        writeline(output, line_out);
+
         if rising_edge(tb_CLK) then
             -- Verifica se o tb_blank
             if (tb_hs = '1' or tb_vs = '1') then
-                assert (tb_blank_n = '0') report "Sinal VGA_BLANK_N deve estar em '0' durante o período de sincronismo" severity error;
-                assert (tb_b = x"00") report "Sinal VGA_B deve estar em '0' durante o período de sincronismo" severity error;
-                assert (tb_g = x"00") report "Sinal VGA_G deve estar em '0' durante o período de sincronismo" severity error;
-                assert (tb_r = x"00") report "Sinal VGA_R deve estar em '0' durante o período de sincronismo" severity error;
+                assert (tb_blank_n = '0') report "Sinal VGA_BLANK_N deve estar em '0' durante o periodo de sincronismo" severity error;
+                assert (tb_b = x"00") report "Sinal VGA_B deve estar em '0' durante o periodo de sincronismo" severity error;
+                assert (tb_g = x"00") report "Sinal VGA_G deve estar em '0' durante o periodo de sincronismo" severity error;
+                assert (tb_r = x"00") report "Sinal VGA_R deve estar em '0' durante o periodo de sincronismo" severity error;
             end if;
         end if;
         
-		  write(line_out, string'("Teste concluido"));
+		write(line_out, string'("Teste concluido"));
         writeline(output, line_out);
         wait;
     end process;
@@ -105,7 +109,7 @@ begin
         variable periodo_medido : time;
 		  variable line_out       : line;
     begin
-	     write(line_out, string'("Testando clock"));
+	    write(line_out, string'("Testando clock"));
         writeline(output, line_out);
         wait for 10 us; -- espera para o sistema inicializar
 
@@ -115,6 +119,8 @@ begin
         wait until rising_edge(tb_vga_clk);
         tempo_final := now;
         periodo_medido := tempo_final - tempo_inicial;
+        write(line_out, string'("O periodo medido foi de:")); write(line_out, periodo_medido);
+        writeline(output, line_out);
         assert (periodo_medido > 39 ns and periodo_medido < 41 ns)
             report "Clock VGA nao esta oscilando ou esta na frequencia errada! " &
                    "Periodo medido: " & time'image(periodo_medido)

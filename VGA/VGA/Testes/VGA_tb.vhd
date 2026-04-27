@@ -97,44 +97,49 @@ begin
     begin
         write(line_out, string'("Testando VGA..."));
         writeline(output, line_out);
+		  
+		  write(line_out, string'("Testando para cada posição de pixel se há algum erro"));
+		  writeline(output, line_out);
 
         -- Teste pixel_x e pixel_y
+			for i in 0 to 8192 loop
+                wait until rising_edge(tb_clk);
+                assert (tb_pixel_x < "1100100000" and tb_pixel_y < "1000001100") 
+                report "ERRO: Coordenadas invalidas! O VGA tentou acessar X = " & 
+                       integer'image(to_integer(unsigned(tb_pixel_x))) & 
+                       ", Y = " & 
+                       integer'image(to_integer(unsigned(tb_pixel_y))) 
+                severity error;				
+                assert (tb_vga_sync_n = '1') report "Sinal de sincronização deve ser '1'" severity error;
 
-        if rising_edge(tb_CLK) then
-				-- Analisa validade das coordenadas dos pixels
-            assert (tb_pixel_x >= "1100100000" and tb_pixel_y >= "1000001100") report "Coordenadas de pixel inválidas" severity error;
-            -- Analisa qualquer alteração em VGA_Sync_N
-				assert (tb_vga_sync_n = '1') report "Sinal de sincronização deve ser '1'" severity error;
+                    -- Verifica se as cores estão certas na região ativa
+                if (tb_video_active = '1') then
+                    assert (tb_vga_r = tb_r_in and tb_vga_g = tb_g_in and tb_vga_b = tb_b_in) report "Cores VGA não correspondem às entradas" severity error;
+                else
+                    assert (tb_vga_blank_n = '0') report "Sinal de blanking deve ser '0' fora da area ativa" severity error;
+                end if;
 
-				-- Verifica se as cores estão certas na região ativa
-            if (tb_video_active = '1') then
-                assert (tb_vga_r = tb_r_in and tb_vga_g = tb_g_in and tb_vga_b = tb_b_in) report "Cores VGA não correspondem às entradas" severity error;
-            else
-                assert (tb_vga_blank_n = '0') report "Sinal de blanking deve ser '0' fora da área ativa" severity error;
-            end if;
+                    -- Verifica o sinal de vídeo ativo e VGA_Blank_N
+                if (tb_pixel_x < "1010000000" and tb_pixel_y < "0111100000") then
+                    assert (tb_video_active = '1' and tb_vga_blank_n = '1') report "Sinal de video ativo deve ser '1' dentro da area ativa" severity error;
+                else
+                    assert (tb_video_active = '0' and tb_vga_blank_n = '0') report "Sinal de video ativo deve ser '0' fora da area ativa" severity error;
+                end if;
 
-				-- Verifica o sinal de vídeo ativo e VGA_Blank_N
-            if (tb_pixel_x < "1010000000" and tb_pixel_y < "0111100000") then
-                assert (tb_video_active = '1' and tb_vga_blank_n = '1') report "Sinal de vídeo ativo deve ser '1' dentro da área ativa" severity error;
-            else
-                assert (tb_video_active = '0' and tb_vga_blank_n = '0') report "Sinal de vídeo ativo deve ser '0' fora da área ativa" severity error;
-            end if;
-
-				-- Verifica se o sync horizontal está nos limites
-				if (tb_pixel_x >= "1010010000" and tb_pixel_x <= "1011101111") then
-                assert (tb_vga_hs = '1') report "Sinal de sincronismo horizontal devem ser '1' dentro da área ativa" severity error;
-            else
-                assert (tb_vga_hs = '0') report "Sinal de sincronismo horizontal deve ser '0' fora da área ativa" severity error;
-            end if;
+                    -- Verifica se o sync horizontal está nos limites
+                if (tb_pixel_x >= "1010010000" and tb_pixel_x <= "1011101111") then
+                    assert (tb_vga_hs = '0') report "Sinal de sincronismo horizontal devem ser '0' dentro da area ativa" severity error;
+                else
+                    assert (tb_vga_hs = '1') report "Sinal de sincronismo horizontal deve ser '1' fora da area ativa" severity error;
+                end if;
             
 				-- Verifica se o sync vertical está nos limites
 				if (tb_pixel_y >= "0111101011" and tb_pixel_y <= "0111101100") then
-                assert (tb_vga_vs = '1') report "Sinal de sincronismo vertical deve ser '1' dentro da área ativa" severity error;
-            else
-                assert (tb_vga_vs = '0') report "Sinal de sincronismo deve ser '0' fora da área ativa" severity error;
-            end if;
-        end if;
-
+                    assert (tb_vga_vs = '0') report "Sinal de sincronismo vertical deve ser '0' dentro da area ativa" severity error;
+                else
+                    assert (tb_vga_vs = '1') report "Sinal de sincronismo vertical deve ser '1' fora da area ativa" severity error;
+                end if;
+			end loop;
         
         write(line_out, string'("Teste concluido sem erros"));
         writeline(output, line_out);
