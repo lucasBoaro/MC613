@@ -38,7 +38,7 @@ begin
         -- Testa limites do indice para o banco de fundo
         for i in 0 to 8191 loop
             tb_addr <= STD_LOGIC_VECTOR(to_unsigned(i, 13));
-            wait for 10 ns; -- espera para observar a saída
+            wait for 10 ns; 
             assert (tb_data_out = x"00" or tb_data_out = x"01" or tb_data_out = x"02" or tb_data_out = x"03") report "Erro: data_out fora do esperado para addr = " & integer'image(i) severity error;
             if i > 4799 then
                 assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
@@ -49,7 +49,7 @@ begin
         tb_bank_sel <= "10"; -- Muda para o banco de botões
         for i in 0 to 8191 loop
             tb_addr <= STD_LOGIC_VECTOR(to_unsigned(i, 13));
-            wait for 10 ns; -- espera para observar a saída
+            wait for 10 ns;
             if i > 48 then
                 assert (tb_data_out = x"00") report "data_out não corresponde ao valor esperado para addr = " & integer'image(i) severity error;
             end if;

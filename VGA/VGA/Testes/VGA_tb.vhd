@@ -120,14 +120,14 @@ begin
                 assert (tb_video_active = '0' and tb_vga_blank_n = '0') report "Sinal de vídeo ativo deve ser '0' fora da área ativa" severity error;
             end if;
 
-				-- Verifica se o sync horizontal está nos limites conforme
+				-- Verifica se o sync horizontal está nos limites
 				if (tb_pixel_x >= "1010010000" and tb_pixel_x <= "1011101111") then
                 assert (tb_vga_hs = '1') report "Sinal de sincronismo horizontal devem ser '1' dentro da área ativa" severity error;
             else
                 assert (tb_vga_hs = '0') report "Sinal de sincronismo horizontal deve ser '0' fora da área ativa" severity error;
             end if;
             
-				-- Verifica se o sync vertical está nos limites conforme
+				-- Verifica se o sync vertical está nos limites
 				if (tb_pixel_y >= "0111101011" and tb_pixel_y <= "0111101100") then
                 assert (tb_vga_vs = '1') report "Sinal de sincronismo vertical deve ser '1' dentro da área ativa" severity error;
             else
