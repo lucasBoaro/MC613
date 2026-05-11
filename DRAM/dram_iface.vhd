@@ -5,12 +5,10 @@ entity dram_iface is
     Port (
         -- É fundamental ter um clock e, de preferência, um reset
         clk             : in  STD_LOGIC;         
-        -- Mudei para 5 downto 0 (6 bits) para acomodar os switches de 9 a 4
         address         : in  STD_LOGIC_VECTOR(5 downto 0); 
         data_in_write   : in  STD_LOGIC_VECTOR(3 downto 0);
         key_3           : in  STD_LOGIC;
         ready           : in  STD_LOGIC;
-        
         data_out_adress : out STD_LOGIC_VECTOR(25 downto 0);
         data_out_write  : out STD_LOGIC_VECTOR(7 downto 0);
         write_out       : out STD_LOGIC;
@@ -59,27 +57,19 @@ begin
     end process;
 
 
-    -- =========================================================
-    -- LÓGICA SEQUENCIAL: Máquina de Estados (com Clock!)
-    -- =========================================================
     process (clk)
     begin    
         if rising_edge(clk) then
-            
-            -- Valores padrão para os sinais de controle (evita que fiquem travados em '1')
-            write_out <= '0';
-            read_out  <= '0';
-
             case state is
             
                 when Wait_ready =>
+                    read_out <= '0';
+                    write_out <= '0';
                     -- Só aceita comandos se a memória estiver pronta
                     if ready = '1' then
-                        -- Prioridade 1: Se o botão for apertado, vai escrever
                         if key_3 = '1' then
                             state <= Req_write;
                             
-                        -- Prioridade 2: Se não for escrever, verifica se o endereço mudou
                         elsif address /= previous_switches then
                             previous_switches <= address; -- Atualiza a memória da chave
                             state <= Req_read;
@@ -87,10 +77,15 @@ begin
                     end if;
 
                 when Req_write =>
-                    write_out <= '1';
-                    state <= Wait_ready; -- Retorna para esperar o próximo comando
+                    if ready = '1' then 
+                        write_out <= '1';
+                        state <= Req_read; -- Retorna para esperar o próximo comando
+                    else
+                        state <= Req_write; -- Se não estiver pronto, volta para esperar
+                    end if;
 
                 when Req_read =>
+                    write_out <= '0';
                     read_out <= '1';
                     state <= Wait_ready; -- Retorna para esperar o próximo comando
                     
