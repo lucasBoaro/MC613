@@ -16,4 +16,86 @@ ENTITY dramController is
 END dramController;
 
 architecture behavior of dramController is
-    
+    SIGNAL counter : INTEGER RANGE 0 TO 28572 := 0;
+
+	-- Build an enumerated type for the state machine
+	type state_type is (reset, init, preChargeAll, autoRefresh_Init, LMR, idle, act, read, write, precharge, refresh, NOP);
+
+	-- Register to hold the current state
+	signal state : state_type;
+
+begin
+
+	process (clk, reset)
+	begin
+
+		if reset = '1' then
+			state <= reset;
+
+		elsif (rising_edge(clk)) then
+
+			counter += 1;
+			case state is
+				when reset=>
+						state <= init;
+				when init=>
+					if input = '1' then
+						state <= preChargeAll;
+					else
+						state <= init;
+					end if;
+				when preChargeAll=>
+					if input = '1' then
+						state <= autoRefresh_Init;
+					else
+						state <= preChargeAll;
+					end if;
+				when autoRefresh_Init=>
+					if input = '1' then
+						state <= autoRefresh_Init;
+					else
+						state <= init;
+					end if;
+                
+			end case;
+
+		end if;
+	end process;
+
+	-- Determine the output based only on the current state
+	-- and the input (do not wait for a clock edge).
+	process (state, input)
+	begin
+			case state is
+				when reset=>
+					if input = '1' then
+						output <= "00";
+					else
+						output <= "01";
+					end if;
+				when init=>
+					if input = '1' then
+						output <= "01";
+					else
+						output <= "11";
+					end if;
+				when preChargeAll=>
+					if input = '1' then
+						output <= "10";
+					else
+						output <= "10";
+					end if;
+				when autoRefresh_Init=>
+					if input = '1' then
+						output <= "11";
+					else
+						output <= "10";
+					end if;
+			end case;
+	end process;
+
+end rtl;
+
+        
+
+    BEGIN
