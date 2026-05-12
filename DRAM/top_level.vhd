@@ -23,7 +23,8 @@ entity DRAM is
         DRAM_CKE : OUT STD_lOGIC;
         DRAM_LDQM : OUT STD_lOGIC;
         DRAM_UDQM : OUT STD_lOGIC;
-        DRAM_BA : OUT STD_lOGIC_VECTOR (1 DOWNTO 0)
+        DRAM_BA : OUT STD_lOGIC_VECTOR (1 DOWNTO 0);
+        DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0)
 	);
 	
 end entity;
@@ -68,8 +69,8 @@ begin
     instancia_dram_iface: entity work.dram_iface
         port map (
             clk => clk,
-            address_in_iface => SW(9 downto 4),  
-            data_in_write_iface => SW(3 downto 0),
+            address => SW(9 downto 4),  
+            data_in_write => SW(3 downto 0),
             key_3 => KEY3,
             ready => ready,
             
@@ -110,11 +111,12 @@ begin
             address => address,
             data_in => data_write,
             data_out => data_hex1,
+            req => bit_write or bit_read,
             ready => ready,
             write_in => bit_write,
             read_in => bit_read,
 
-            DRAM_CS_N => DRAM_CS_N, -- Conexões para a DRAM (deixadas como open para simulação)
+            DRAM_CS_N => DRAM_CS_N,
             DRAM_RAS_N => DRAM_RAS_N,
             DRAM_CAS_N => DRAM_CAS_N,
             DRAM_WE_N => DRAM_WE_N,
@@ -122,6 +124,7 @@ begin
             DRAM_CKE => DRAM_CKE,
             DRAM_LDQM => DRAM_LDQM,
             DRAM_UDQM => DRAM_UDQM,
-            DRAM_BA => DRAM_BA
+            DRAM_BA => DRAM_BA,
+            DRAM_DQ => DRAM_DQ
         );
 END architecture Behavioral;
