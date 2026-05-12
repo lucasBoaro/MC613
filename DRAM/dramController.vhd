@@ -99,6 +99,7 @@ begin
 
                 when act=>
                     counter <= 3;
+                    IS_READY <= '0';
                     if action = '1' then
                         next_state <= write_st;
                     elsif action = '0' then
