@@ -86,7 +86,6 @@ begin
 
                 when Req_write =>
                     write_out <= '1';
-
                     if req_counter < 2 then
                         req_counter <= req_counter + 1; -- Incrementa o contador de requisições
                         state <= Req_write; -- Continua no estado de escrita
