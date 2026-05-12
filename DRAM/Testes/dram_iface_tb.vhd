@@ -38,7 +38,7 @@ architecture behavior of tb_dram_iface is
 
     -- Controle da simulação
     signal sim_finished       : boolean := false; 
-    constant clk_period       : time := 20 ns;
+    constant clk_period       : time := 7 ns;
 
 begin
 
@@ -81,7 +81,7 @@ begin
         
         -- Simulamos que o controlador DRAM está ligado e pronto para receber uma requisição
         tb_ready <= '1'; 
-        wait for 100 ns;
+        wait for 35 ns;
 
         -- =========================================================
         -- OPERAÇÃO DE ESCRITA
@@ -90,25 +90,25 @@ begin
         
         -- Simula usuário digitando o valor 10 e em seguida apertando o botão key 3 para solicitar a requisição da escrita
         tb_data_in_write <= "1010"; 
-        tb_key_3 <= '0'; wait for 40 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão
+        tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão
         
-        wait for 40 ns; -- Devemos esperar um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de escrita)
+        wait for 14 ns; -- Devemos esperar um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de escrita)
 
         print_status("Apertou KEY_3. (write_req deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a escrita
-        wait for 140 ns; -- Espera o tempo necessário para processar a escrita
+        wait for 49 ns; -- Espera o tempo necessário para processar a escrita
         print_status("Passou os 3 clocks dentro do estado de requisição de escrita, agora deve estar no estado wait_write, esperando o ready voltar a '1' para finalizar a escrita. (write_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de gravar e voltou a ficar pronto para receber requisições
         
-        wait for 40 ns; -- Espera um ciclo de clock para atualizar o estado 
+        wait for 14 ns; -- Espera um ciclo de clock para atualizar o estado 
         print_status("Escrita terminou. (read_req automatico deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a leitura
-        wait for 140 ns; -- Espera o tempo necessário para processar a leitura
+        wait for 49 ns; -- Espera o tempo necessário para processar a leitura
         print_status("Passou os 3 clocks dentro do estado de requisição de leitura, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de ler e voltou a ficar pronto para receber requisições
-        wait for 100 ns;
+        wait for 35 ns;
 
         -- =========================================================
         -- OPERAÇÃO DE LEITURA POR MUDANÇA DE ENDEREÇO
@@ -117,14 +117,14 @@ begin
         
         -- Nota: Simulando os bits mapeados (SW 5 e 4 controlam os bits 1 e 0 do Address)
         tb_address_in <= "000011"; -- Usuário altera o switch
-        wait for 40 ns; -- Espera um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de leitura)        
+        wait for 14 ns; -- Espera um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de leitura)        
         print_status("Switch alterado. (read_req deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a leitura
-        wait for 140 ns;
+        wait for 49 ns;
         print_status("Passou os 3 clocks dentro do estado de requisição de leitura, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de ler e voltou a ficar pronto para receber requisições
-        wait for 100 ns;
+        wait for 35 ns;
 
         -- =========================================================
         -- OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
@@ -132,30 +132,30 @@ begin
         write(line_out, string'("=== OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0') ===")); writeline(output, line_out);
         
         tb_ready <= '0'; -- Controlador está fazendo um Refresh
-        wait for 60 ns;
+        wait for 21 ns;
         
         -- Simula o usuário mudando o valor a ser escrito para 7
         tb_data_in_write <= "0111"; 
-        tb_key_3 <= '0'; wait for 40 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão para solicitar a escrita
-        wait for 40 ns; 
+        tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão para solicitar a escrita
+        wait for 14 ns; 
         
         print_status("Botao apertado, mas a RAM esta em Refresh (write_req DEVE ser '0')");
-        wait for 140 ns;  
+        wait for 49 ns;  
         
         tb_ready <= '1'; -- Controlador finaliza o Refresh e volta a ficar pronto para receber requisições
-        wait for 40 ns; 
+        wait for 14 ns; 
         
         print_status("Refresh acabou, a chamada da escrita deve ser realizada agora. (write_req deve estar em '1')");
         
         tb_ready <= '0'; -- Controlador processa a escrita
-        wait for 140 ns;
+        wait for 49 ns;
         tb_ready <= '1'; -- Controlador finaliza a escrita e volta a ficar pronto para receber requisições
         
-        wait for 40 ns;
+        wait for 14 ns;
         tb_ready <= '0'; -- Leitura automática
-        wait for 140 ns;
+        wait for 49 ns;
         tb_ready <= '1';
-        wait for 100 ns;
+        wait for 35 ns;
 
         -- =========================================================
         write(line_out, string'("Teste concluido com sucesso!"));

@@ -10,7 +10,6 @@ entity DRAM is
         KEY3     : in  std_logic;
         HEX5: out std_logic_vector(6 downto 0);
 		HEX4: out std_logic_vector(6 downto 0);
-		HEX2: out std_logic_vector(6 downto 0); 
 		HEX1: out std_logic_vector(6 downto 0); 
 		HEX0: out std_logic_vector(6 downto 0);
         
