@@ -19,12 +19,16 @@ end dram_iface;
 architecture behavior of dram_iface is
 
     -- Declaração dos estados
-    type state_type is (Wait_ready, Req_write, Req_read);
+    type state_type is (Wait_ready, Req_write, Req_read, wait_write, wait_read);
     signal state      : state_type := Wait_ready;
     
     -- Registrador para guardar o estado anterior das chaves
     signal previous_switches : STD_LOGIC_VECTOR(5 downto 0) := (others => '0');
 
+    signal req_counter : integer range 0 to 3 := 0;
+
+    signal previous_key_3 : STD_LOGIC := '1'; 
+    signal write_pendindg : STD_LOGIC := '0';
 begin
 
     -- =========================================================
@@ -36,8 +40,6 @@ begin
     data_out_write(3 downto 0) <= data_in_write;
     data_out_write(7 downto 4) <= "0000";
 
-    -- Mapeamento do Endereço (Address)
-    -- Primeiro, zera tudo
     process(address)
     begin
         data_out_adress <= (others => '0'); 
@@ -60,6 +62,12 @@ begin
     process (clk)
     begin    
         if rising_edge(clk) then
+            previous_key_3 <= key_3;
+            if previous_key_3 = '1' and key_3 = '0' then
+                write_pendindg <= '1'; 
+            end if;
+
+
             case state is
             
                 when Wait_ready =>
@@ -67,9 +75,9 @@ begin
                     write_out <= '0';
                     -- Só aceita comandos se a memória estiver pronta
                     if ready = '1' then
-                        if key_3 = '1' then
+                        if write_pendindg = '1' then
+                            write_pendindg <= '0';
                             state <= Req_write;
-                            
                         elsif address /= previous_switches then
                             previous_switches <= address; -- Atualiza a memória da chave
                             state <= Req_read;
@@ -77,18 +85,42 @@ begin
                     end if;
 
                 when Req_write =>
+                    write_out <= '1';
+
+                    if req_counter < 2 then
+                        req_counter <= req_counter + 1; -- Incrementa o contador de requisições
+                        state <= Req_write; -- Continua no estado de escrita
+                    else
+                        req_counter <= 0; -- Reseta o contador
+                        state <= wait_write; -- Volta para esperar o próximo comando
+                    end if;
+                
+                when wait_write =>
+                    write_out <= '0';
                     if ready = '1' then 
-                        write_out <= '1';
                         state <= Req_read; -- Retorna para esperar o próximo comando
                     else
-                        state <= Req_write; -- Se não estiver pronto, volta para esperar
+                        state <= wait_write; -- Continua esperando
                     end if;
 
                 when Req_read =>
-                    write_out <= '0';
                     read_out <= '1';
-                    state <= Wait_ready; -- Retorna para esperar o próximo comando
-                    
+                    if req_counter < 2 then
+                        req_counter <= req_counter + 1; -- Incrementa o contador de requisições
+                        state <= Req_read; -- Continua no estado de leitura
+                    else
+                        req_counter <= 0; -- Reseta o contador
+                        state <= wait_read; -- Volta para esperar o próximo comando
+                    end if;
+                
+                when wait_read =>
+                    read_out <= '0';
+                    if ready = '1' then
+                        state <= Wait_ready; -- Retorna para esperar o próximo comando
+                    else
+                        state <= wait_read; -- Continua esperando
+                    end if;
+
                 when others =>
                     state <= Wait_ready;
                     
