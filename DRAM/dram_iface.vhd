@@ -100,7 +100,7 @@ begin
                             state <= Req_write; -- Continua no estado de escrita
                         else
                             req_counter <= 0; -- Reseta o contador
-                            state <= wait_write; -- Volta para esperar o próximo comando
+                             state <= wait_write; -- Volta para esperar o próximo comando
                         end if;
                     
                     when wait_write =>
@@ -118,7 +118,7 @@ begin
                             state <= Req_read; -- Continua no estado de leitura
                         else
                             req_counter <= 0; -- Reseta o contador
-                            state <= wait_read; -- Volta para esperar o próximo comando
+                         state <= wait_read; -- Volta para esperar o próximo comando
                         end if;
                     
                     when wait_read =>
