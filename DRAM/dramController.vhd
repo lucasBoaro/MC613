@@ -284,7 +284,7 @@ begin
             read_delay(2) <= read_delay(1);
             read_delay(3) <= read_delay(2);
             
-            if read_delay(3) = '1' then
+            if read_delay(2) = '1' then
                 data_out <= DRAM_DQ(7 downto 0);
             end if;
         end if;
