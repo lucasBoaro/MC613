@@ -65,8 +65,9 @@ begin
 			state <= reset_st;
 
 		elsif (rising_edge(clk_143)) then
-            data_out <= DRAM_DQ(7 downto 0);
-
+				if state = NOP and next_state = precharge and action = '0' then
+					  data_out <= DRAM_DQ(7 downto 0);
+				 end if;
             -- =======================================================
             -- LÓGICA MOVIDA PARA CÁ (Dentro do MESMO process)
             -- Como estamos no mesmo process, o curto-circuito acaba!
@@ -92,24 +93,24 @@ begin
                     state <= NOP;
                     next_state <= preChargeAll;
 				when preChargeAll=>
-                    counter <= 4;
+                    counter <= 5;
                     state <= NOP;
                     next_state <= autoRefresh_Init;
 
 				when autoRefresh_Init=>
                     if counter_refresh = 8 then
-                        counter <= 9;
+                        counter <= 10;
                         state <= NOP;
                         next_state <= LMR;
                     else
                         counter_refresh <= counter_refresh + 1;
-                        counter <= 9;
+                        counter <= 10;
                         state <= NOP;
                         next_state <= autoRefresh_Init;
                     end if;                    
 
                 when LMR=>
-                    counter <= 2;
+                    counter <= 3;
                     state <= NOP;
                     next_state <= idle;
 
@@ -125,7 +126,7 @@ begin
                     end if;
 
                 when act=>
-                    counter <= 3;
+                    counter <= 4;
                     IS_READY <= '0';
                     if action = '1' then
                         next_state <= write_st;
@@ -135,23 +136,23 @@ begin
                     state <= NOP;
 
                 when write_st=>
-                    counter <= 2;
+                    counter <= 3;
                     next_state <= precharge;
                     state <= NOP;
 
                 when read_st=>
-                    counter <= 2;
+                    counter <= 3;
                     next_state <= precharge;
                     state <= NOP;
 
                 when precharge=>
-                    counter <= 3;
+                    counter <= 4;
                     next_state <= idle;
                     state <= NOP;
                     completed <= '1';
 
                 when refresh=>
-                    counter <= 9;
+                    counter <= 10;
                     next_state <= idle;
                     state <= NOP;
 
@@ -176,8 +177,8 @@ begin
         DRAM_RAS_N <= '1';
         DRAM_CAS_N <= '1';
         DRAM_WE_N  <= '1';
-        DRAM_LDQM <= '1';
-        DRAM_UDQM <= '1';
+        DRAM_LDQM <= '0';
+        DRAM_UDQM <= '0';
         DRAM_CKE <= '1';
         DRAM_ADDR <= (others => '0');
         DRAM_BA <= "00";
@@ -231,7 +232,12 @@ begin
                         DRAM_DQ(15 downto 8) <= (others => '0');
                         DRAM_LDQM <= '0';
                         DRAM_UDQM <= '0';
-
+                when precharge =>
+                        DRAM_CS_N <= '0';
+                        DRAM_RAS_N <= '0';
+                        DRAM_CAS_N <= '1';
+                        DRAM_WE_N <= '0';
+                        DRAM_ADDR(10) <= '1'; -- O bit 10 em '1' fecha todos os bancos com segurança
                 when NOP=>
                         DRAM_CS_N <= '0';
                         DRAM_RAS_N <= '1';
