@@ -59,6 +59,23 @@ begin
 		elsif (rising_edge(clk_143)) then
             data_out <= DRAM_DQ(7 downto 0);
 
+            -- =======================================================
+            -- LÓGICA MOVIDA PARA CÁ (Dentro do MESMO process)
+            -- Como estamos no mesmo process, o curto-circuito acaba!
+            -- =======================================================
+            if req = '1' and IS_READY = '1' then
+                completed <= '0';
+                input_data <= data_in;
+                save_addr <= address;
+
+                if write_in = '1' then
+                    action <= '1';
+                elsif read_in = '1' then
+                    action <= '0';
+                end if;
+            end if;
+            -- =======================================================
+
 			case state is
 				when reset_st=> 
 						state <= init;
@@ -233,22 +250,7 @@ begin
         end if;
     end process;
     
-    process (clk_143)
-    begin
-        if rising_edge(clk_143) then
-            if req = '1' and IS_READY = '1' then
-                completed <= '0';
-                input_data <= data_in;
-                save_addr <= address;
-
-                if write_in = '1' then
-                    action <= '1';
-                elsif read_in = '1' then
-                    action <= '0';
-                end if;
-            end if;
-        end if;
-    end process;
+    
     
 
 end behavior;

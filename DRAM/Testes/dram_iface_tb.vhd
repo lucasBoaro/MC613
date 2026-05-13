@@ -4,19 +4,19 @@ use IEEE.NUMERIC_STD.ALL;
 use STD.TEXTIO.ALL;
 use IEEE.STD_LOGIC_TEXTIO.ALL;
 
-entity tb_dram_iface is
-end tb_dram_iface;
+entity dram_iface_tb is
+end dram_iface_tb;
 
-architecture behavior of tb_dram_iface is
+architecture behavior of dram_iface_tb is
 
     component dram_iface
         Port (
             clk             : in  STD_LOGIC;         
-            address_in      : in  STD_LOGIC_VECTOR(5 downto 0); 
+            address      : in  STD_LOGIC_VECTOR(5 downto 0); 
             data_in_write   : in  STD_LOGIC_VECTOR(3 downto 0);
             key_3           : in  STD_LOGIC;
             ready           : in  STD_LOGIC;
-            address_out     : out STD_LOGIC_VECTOR(25 downto 0);
+            data_out_adress     : out STD_LOGIC_VECTOR(25 downto 0);
             data_out_write  : out STD_LOGIC_VECTOR(7 downto 0);
             write_out       : out STD_LOGIC;
             read_out        : out STD_LOGIC
@@ -44,11 +44,11 @@ begin
 
     UUT: dram_iface port map (
         clk             => tb_clk,
-        address_in      => tb_address_in,
+        address      => tb_address_in,
         data_in_write   => tb_data_in_write,
         key_3           => tb_key_3,
         ready           => tb_ready,
-        address_out     => tb_address_out,
+        data_out_adress     => tb_address_out,
         data_out_write  => tb_data_out_write,
         write_out       => tb_write_req,
         read_out        => tb_read_req

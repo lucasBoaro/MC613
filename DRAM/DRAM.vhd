@@ -44,6 +44,9 @@ architecture Behavioral of DRAM is
     signal clk              : std_logic;
 
     signal data_hex1 : std_logic_vector(7 downto 0);
+    -- Sinais apara evitar o uso de operadores lógicos
+    signal bin_in_hex5 : std_logic_vector(3 downto 0);
+    signal req_controller : std_logic;
 
     -- PLL para gerar o clock de pixel
     COMPONENT pll IS
@@ -57,6 +60,8 @@ architecture Behavioral of DRAM is
 
 begin
 
+    bin_in_hex5 <= "00" & SW(9 downto 8);
+    req_controller <= bit_write or bit_read;
     -- Instância do PLL para gerar o clock de pixel ( MHz)
     instanciaPLL: pll
         port map (
@@ -89,7 +94,7 @@ begin
     
     instancia_bin2hex_addr_hex5: entity work.bin2hex
         port map (
-            BIN => "00" & SW(9 downto 8),
+            BIN => bin_in_hex5, -- Fio limpo, sem concatenação aqui!
             HEX => HEX5
         );
 
@@ -112,7 +117,7 @@ begin
             address => address,
             data_in => data_write,
             data_out => data_hex1,
-            req => bit_write or bit_read,
+            req => req_controller,
             ready => ready,
             write_in => bit_write,
             read_in => bit_read,
