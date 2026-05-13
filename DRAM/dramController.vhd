@@ -55,6 +55,7 @@ architecture behavior of dramController is
 	-- Register to hold the current state
 	signal state : state_type;
     signal next_state : state_type;
+    signal read_delay : std_logic_vector(3 downto 0) := "0000";
 
 begin
     state_debug <= state;
@@ -270,9 +271,20 @@ begin
     begin
         if rst = '1' then
             data_out <= (others => '0');
-        elsif rising_edge(clk_143) then
-            -- O dado de leitura com CAS 3 tem que ser lido exatamente quando a máquina entra no precharge
-            if state = precharge and action = '0' then
+            read_delay <= "0000";
+        elsif falling_edge(clk_143) then
+            -- Mapeamento rígido e exato para CAS Latency = 3
+            -- O dado sai da DRAM na janela entre 29.9ns e 34.0ns.
+            -- A borda falling_edge T4.5 acontece em exatos 31.5ns.
+            read_delay(0) <= '0';
+            if state = read_st then
+                read_delay(0) <= '1';
+            end if;
+            read_delay(1) <= read_delay(0);
+            read_delay(2) <= read_delay(1);
+            read_delay(3) <= read_delay(2);
+            
+            if read_delay(3) = '1' then
                 data_out <= DRAM_DQ(7 downto 0);
             end if;
         end if;
