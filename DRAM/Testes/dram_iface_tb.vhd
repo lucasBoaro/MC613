@@ -84,10 +84,9 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-        -- OPERAÇÃO DE ESCRITA
+        -- OPERACAO DE ESCRITA
         -- =========================================================
-        write(line_out, string'("=== OPERAÇÃO DE ESCRITA ===")); writeline(output, line_out);
-        
+			write(line_out, string'("OPERACAO DE ESCRITA"));
         -- Simula usuário digitando o valor 10 e em seguida apertando o botão key 3 para solicitar a requisição da escrita
         tb_data_in_write <= "1010"; 
         tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão
@@ -111,7 +110,11 @@ begin
         wait for 35 ns;
 
         -- =========================================================
+<<<<<<< Updated upstream
         -- OPERAÇÃO DE LEITURA POR MUDANÇA DE ENDEREÇO
+=======
+        -- CENARIO 2: LEITURA AO MUDAR O ENDERECO (SWITCHES)
+>>>>>>> Stashed changes
         -- =========================================================
         write(line_out, string'("=== OPERAÇÃO DE LEITURA POR MUDANÇA DE ENDEREÇO ===")); writeline(output, line_out);
         
@@ -127,7 +130,11 @@ begin
         wait for 35 ns;
 
         -- =========================================================
+<<<<<<< Updated upstream
         -- OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
+=======
+        -- CENARIO 3: TESTE DA FLAG DE PENDÊNCIA (BOTAO APERTADO NA HORA ERRADA)
+>>>>>>> Stashed changes
         -- =========================================================
         write(line_out, string'("=== OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0') ===")); writeline(output, line_out);
         
