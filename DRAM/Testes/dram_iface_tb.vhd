@@ -12,7 +12,8 @@ architecture behavior of dram_iface_tb is
     component dram_iface
         Port (
             clk             : in  STD_LOGIC;         
-            address      : in  STD_LOGIC_VECTOR(5 downto 0); 
+            rst             : in  STD_LOGIC;
+            address         : in  STD_LOGIC_VECTOR(5 downto 0); 
             data_in_write   : in  STD_LOGIC_VECTOR(3 downto 0);
             key_3           : in  STD_LOGIC;
             ready           : in  STD_LOGIC;
@@ -23,20 +24,18 @@ architecture behavior of dram_iface_tb is
         );
     end component;
 
-    -- Sinais de entrada para o DUT
     signal tb_clk             : std_logic := '0';
+    signal tb_rst             : std_logic := '0';
     signal tb_address_in      : std_logic_vector(5 downto 0) := (others => '0');
     signal tb_data_in_write   : std_logic_vector(3 downto 0) := (others => '0');
     signal tb_key_3           : std_logic := '1';
     signal tb_ready           : std_logic := '0';
 
-    -- Sinais de saída do DUT
     signal tb_address_out     : std_logic_vector(25 downto 0);
     signal tb_data_out_write  : std_logic_vector(7 downto 0);
     signal tb_write_req       : std_logic;
     signal tb_read_req        : std_logic;
 
-    -- Controle da simulação
     signal sim_finished       : boolean := false; 
     constant clk_period       : time := 7 ns;
 
@@ -44,7 +43,8 @@ begin
 
     UUT: dram_iface port map (
         clk             => tb_clk,
-        address      => tb_address_in,
+        address         => tb_address_in,
+        rst             => tb_rst,
         data_in_write   => tb_data_in_write,
         key_3           => tb_key_3,
         ready           => tb_ready,
@@ -110,10 +110,7 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-
         -- OPERACAO DE LEITURA POR MUDANCA DE ENDERECO
-
-
         -- =========================================================
         write(line_out, string'("=== OPERACAO DE LEITURA POR MUDANCA DE ENDERECO ===")); writeline(output, line_out);
         
@@ -129,7 +126,6 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-
         -- OPERACAO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
         -- =========================================================
         write(line_out, string'("=== OPERACAO DE ESCRITA, DURANTE UM REFRESH (READY EM '0') ===")); writeline(output, line_out);
@@ -160,6 +156,33 @@ begin
         tb_ready <= '1';
         wait for 35 ns;
 
+        -- =========================================================
+        -- OPERAÇÃO INTERROMPIDA POR RESET
+        -- =========================================================
+        write(line_out, string'("=== OPERAÇÃO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
+
+        tb_ready <= '1';
+        wait for 14 ns;
+
+        -- Simula usuário a pedir para escrever o valor 15 
+        tb_data_in_write <= "1111";
+        tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1';
+        
+        wait for 7 ns; -- Espera 1 ciclo para entrar no estado Req_write
+        
+        print_status("Iniciou a escrita. O sinal (write_req DEVE estar em '1')");
+
+        -- Simula o usuário apertando o botão de reset durante a escrita
+        tb_rst <= '1';
+        wait for 14 ns; 
+        
+        print_status("Reset apertado. A maquina deve voltar ao estado inicial (write_req deve cair para '0')");
+        
+        -- Solta o botão de reset
+        tb_rst <= '0';
+        wait for 35 ns;
+        
+        print_status("Reset solto. Sistema em Wait_ready aguardando novos comandos.");
         -- =========================================================
         write(line_out, string'("Teste concluido com sucesso!"));
         writeline(output, line_out);
