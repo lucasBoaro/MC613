@@ -8,6 +8,7 @@ entity DRAM is
         CLK_50     : in  std_logic;
         SW      : in  std_logic_vector(9 downto 0);
         KEY3     : in  std_logic;
+        KEY0     : in  std_logic;
         HEX5: out std_logic_vector(6 downto 0);
 		HEX4: out std_logic_vector(6 downto 0);
 		HEX1: out std_logic_vector(6 downto 0); 
@@ -68,6 +69,7 @@ begin
     instancia_dram_iface: entity work.dram_iface
         port map (
             clk => clk,
+            rst => not KEY0,
             address => SW(9 downto 4),  
             data_in_write => SW(3 downto 0),
             key_3 => KEY3,
@@ -106,7 +108,7 @@ begin
     instancia_dram_controller: entity work.dramController
         port map (
             clk_143 => clk,
-            rst => '0',
+            rst => not KEY0,
             address => address,
             data_in => data_write,
             data_out => data_hex1,

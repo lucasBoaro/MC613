@@ -4,7 +4,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity dram_iface is
     Port (
         -- É fundamental ter um clock e, de preferência, um reset
-        clk             : in  STD_LOGIC;         
+        clk             : in  STD_LOGIC;     
+        rst             : in  STD_LOGIC;    
         address         : in  STD_LOGIC_VECTOR(5 downto 0); 
         data_in_write   : in  STD_LOGIC_VECTOR(3 downto 0);
         key_3           : in  STD_LOGIC;
@@ -62,68 +63,76 @@ begin
     process (clk)
     begin    
         if rising_edge(clk) then
-            previous_key_3 <= key_3;
-            if previous_key_3 = '1' and key_3 = '0' then
-                write_pendindg <= '1'; 
-            end if;
-
-
-            case state is
+            if rst = '1' then 
+                state <= Wait_ready;
+                req_counter <= 0;             
+                write_pendindg <= '0';        
+                write_out <= '0';             
+                read_out <= '0';              
+                previous_switches <= address; 
+                previous_key_3 <= '1';        
             
-                when Wait_ready =>
-                    read_out <= '0';
-                    write_out <= '0';
-                    -- Só aceita comandos se a memória estiver pronta
-                    if ready = '1' then
-                        if write_pendindg = '1' then
-                            write_pendindg <= '0';
-                            state <= Req_write;
-                        elsif address /= previous_switches then
-                            previous_switches <= address; -- Atualiza a memória da chave
-                            state <= Req_read;
+            else
+                previous_key_3 <= key_3;
+                if previous_key_3 = '1' and key_3 = '0' then
+                    write_pendindg <= '1'; 
+                end if;
+                case state is
+                
+                    when Wait_ready =>
+                        read_out <= '0';
+                        write_out <= '0';
+                        -- Só aceita comandos se a memória estiver pronta
+                        if ready = '1' then
+                            if write_pendindg = '1' then
+                                write_pendindg <= '0';
+                                state <= Req_write;
+                            elsif address /= previous_switches then
+                                previous_switches <= address; -- Atualiza a memória da chave
+                                state <= Req_read;
+                            end if;
                         end if;
-                    end if;
 
-                when Req_write =>
-                    write_out <= '1';
-                    if req_counter < 2 then
-                        req_counter <= req_counter + 1; -- Incrementa o contador de requisições
-                        state <= Req_write; -- Continua no estado de escrita
-                    else
-                        req_counter <= 0; -- Reseta o contador
-                        state <= wait_write; -- Volta para esperar o próximo comando
-                    end if;
-                
-                when wait_write =>
-                    write_out <= '0';
-                    if ready = '1' then 
-                        state <= Req_read; -- Retorna para esperar o próximo comando
-                    else
-                        state <= wait_write; -- Continua esperando
-                    end if;
-
-                when Req_read =>
-                    read_out <= '1';
-                    if req_counter < 2 then
-                        req_counter <= req_counter + 1; -- Incrementa o contador de requisições
-                        state <= Req_read; -- Continua no estado de leitura
-                    else
-                        req_counter <= 0; -- Reseta o contador
-                        state <= wait_read; -- Volta para esperar o próximo comando
-                    end if;
-                
-                when wait_read =>
-                    read_out <= '0';
-                    if ready = '1' then
-                        state <= Wait_ready; -- Retorna para esperar o próximo comando
-                    else
-                        state <= wait_read; -- Continua esperando
-                    end if;
-
-                when others =>
-                    state <= Wait_ready;
+                    when Req_write =>
+                        write_out <= '1';
+                        if req_counter < 2 then
+                            req_counter <= req_counter + 1; -- Incrementa o contador de requisições
+                            state <= Req_write; -- Continua no estado de escrita
+                        else
+                            req_counter <= 0; -- Reseta o contador
+                            state <= wait_write; -- Volta para esperar o próximo comando
+                        end if;
                     
-            end case;
+                    when wait_write =>
+                        write_out <= '0';
+                        if ready = '1' then 
+                            state <= Req_read; -- Retorna para esperar o próximo comando
+                        else
+                            state <= wait_write; -- Continua esperando
+                        end if;
+
+                    when Req_read =>
+                        read_out <= '1';
+                        if req_counter < 2 then
+                            req_counter <= req_counter + 1; -- Incrementa o contador de requisições
+                            state <= Req_read; -- Continua no estado de leitura
+                        else
+                            req_counter <= 0; -- Reseta o contador
+                            state <= wait_read; -- Volta para esperar o próximo comando
+                        end if;
+                    
+                    when wait_read =>
+                        read_out <= '0';
+                        if ready = '1' then
+                            state <= Wait_ready; -- Retorna para esperar o próximo comando
+                        else
+                            state <= wait_read; -- Continua esperando
+                        end if;
+
+                    when others =>
+                        state <= Wait_ready;
+                        
+                end case;
         end if;
     end process;
 
