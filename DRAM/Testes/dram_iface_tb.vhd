@@ -110,13 +110,12 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-<<<<<<< Updated upstream
-        -- OPERAÇÃO DE LEITURA POR MUDANÇA DE ENDEREÇO
-=======
-        -- CENARIO 2: LEITURA AO MUDAR O ENDERECO (SWITCHES)
->>>>>>> Stashed changes
+
+        -- OPERACAO DE LEITURA POR MUDANCA DE ENDERECO
+
+
         -- =========================================================
-        write(line_out, string'("=== OPERAÇÃO DE LEITURA POR MUDANÇA DE ENDEREÇO ===")); writeline(output, line_out);
+        write(line_out, string'("=== OPERACAO DE LEITURA POR MUDANCA DE ENDERECO ===")); writeline(output, line_out);
         
         -- Nota: Simulando os bits mapeados (SW 5 e 4 controlam os bits 1 e 0 do Address)
         tb_address_in <= "000011"; -- Usuário altera o switch
@@ -130,13 +129,10 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-<<<<<<< Updated upstream
-        -- OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
-=======
-        -- CENARIO 3: TESTE DA FLAG DE PENDÊNCIA (BOTAO APERTADO NA HORA ERRADA)
->>>>>>> Stashed changes
+
+        -- OPERACAO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
         -- =========================================================
-        write(line_out, string'("=== OPERAÇÃO DE ESCRITA, DURANTE UM REFRESH (READY EM '0') ===")); writeline(output, line_out);
+        write(line_out, string'("=== OPERACAO DE ESCRITA, DURANTE UM REFRESH (READY EM '0') ===")); writeline(output, line_out);
         
         tb_ready <= '0'; -- Controlador está fazendo um Refresh
         wait for 21 ns;
