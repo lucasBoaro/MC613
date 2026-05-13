@@ -10,9 +10,9 @@ entity DRAM is
         KEY3     : in  std_logic;
         KEY0     : in  std_logic;
         HEX5: out std_logic_vector(6 downto 0);
-		HEX4: out std_logic_vector(6 downto 0);
-		HEX1: out std_logic_vector(6 downto 0); 
-		HEX0: out std_logic_vector(6 downto 0);
+			HEX4: out std_logic_vector(6 downto 0);
+			HEX1: out std_logic_vector(6 downto 0); 
+			HEX0: out std_logic_vector(6 downto 0);
         DRAM_CLK: out std_logic;
         
         -- Conexões para a DRAM 
@@ -48,7 +48,7 @@ architecture Behavioral of DRAM is
     -- Sinais apara evitar o uso de operadores lógicos
     signal bin_in_hex5 : std_logic_vector(3 downto 0);
     signal req_controller : std_logic;
-
+    signal rst_geral : std_logic;
     -- PLL para gerar o clock de pixel
     COMPONENT pll IS
         PORT (
@@ -60,7 +60,7 @@ architecture Behavioral of DRAM is
     END COMPONENT;
 
 begin
-
+    rst_geral <= not KEY0;
     bin_in_hex5 <= "00" & SW(9 downto 8);
     req_controller <= bit_write or bit_read;
     -- Instância do PLL para gerar o clock de pixel ( MHz)
@@ -71,11 +71,14 @@ begin
             outclk_0 => clk,
             locked   => open
         );
+		 dram_clk <= clk;
+
+
 
     instancia_dram_iface: entity work.dram_iface
         port map (
             clk => clk,
-            rst => not KEY0,
+            rst => rst_geral,
             address => SW(9 downto 4),  
             data_in_write => SW(3 downto 0),
             key_3 => KEY3,
@@ -114,7 +117,7 @@ begin
     instancia_dram_controller: entity work.dramController
         port map (
             clk_143 => clk,
-            rst => not KEY0,
+            rst => rst_geral,
             address => address,
             data_in => data_write,
             data_out => data_hex1,
@@ -122,7 +125,6 @@ begin
             ready => ready,
             write_in => bit_write,
             read_in => bit_read,
-            dram_clk => clk,
 
             DRAM_CS_N => DRAM_CS_N,
             DRAM_RAS_N => DRAM_RAS_N,

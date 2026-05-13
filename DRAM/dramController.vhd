@@ -2,6 +2,16 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
+package dram_pkg is
+    -- O tipo fica disponível globalmente para quem chamar este pacote
+    type state_type is (reset_st, init, preChargeAll, autoRefresh_Init, LMR, idle, act, read_st, write_st, precharge, refresh, NOP);
+end package dram_pkg;
+
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
+use work.dram_pkg.all; -- Chama o pacote que acabou de ser criado acima!
+
 ENTITY dramController is
     PORT(
         clk_143 : IN STD_LOGIC; -- Clk adaptado para a frequencia da dram
@@ -23,14 +33,16 @@ ENTITY dramController is
         DRAM_LDQM : OUT STD_lOGIC;
         DRAM_UDQM : OUT STD_lOGIC;
         DRAM_BA : OUT STD_lOGIC_VECTOR (1 DOWNTO 0);
-        DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- INOUT porque os pinos são bidirecionais (Recebimento e envio de dados na mesma pinagem)
-    );
+        DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0); -- INOUT porque os pinos são bidirecionais (Recebimento e envio de dados na mesma pinagem)
+    
+        state_debug : OUT state_type
+        );
 END dramController;
 
 architecture behavior of dramController is
     SIGNAL counter : INTEGER RANGE 0 TO 28572 := 0;
     SIGNAL counter_refresh : INTEGER RANGE 0 to 8 := 0;
-    SIGNAL counterAutoRefresh : integer range 0 to 1116;
+    SIGNAL counterAutoRefresh : integer := 0;
     SIGNAL IS_READY : STD_LOGIC := '0';
     SIGNAL block_idle : STD_LOGIC := '0';
 
@@ -40,16 +52,12 @@ architecture behavior of dramController is
     SIGNAL save_addr : STD_LOGIC_VECTOR(25 DOWNTO 0);
 
     
-    
-
-	-- Build an enumerated type for the state machine
-	type state_type is (reset_st, init, preChargeAll, autoRefresh_Init, LMR, idle, act, read_st, write_st, precharge, refresh, NOP);
-
 	-- Register to hold the current state
 	signal state : state_type;
     signal next_state : state_type;
 
 begin
+    state_debug <= state;
     ready <= IS_READY;
 	process (clk_143, rst)
 	begin
@@ -90,7 +98,9 @@ begin
 
 				when autoRefresh_Init=>
                     if counter_refresh = 8 then
-                        state <= LMR;
+                        counter <= 9;
+                        state <= NOP;
+                        next_state <= LMR;
                     else
                         counter_refresh <= counter_refresh + 1;
                         counter <= 9;
@@ -207,7 +217,8 @@ begin
                         DRAM_ADDR(10) <= '0';
                         DRAM_BA   <= save_addr(24 downto 23);
                         DRAM_ADDR(9 downto 0) <= save_addr(9 downto 0); -- 10 bits de coluna
-
+                        DRAM_LDQM <= '0';
+                        DRAM_UDQM <= '0';
                 when write_st=>
                         DRAM_CS_N <= '0';
                         DRAM_RAS_N <= '1';
@@ -218,6 +229,8 @@ begin
                         DRAM_ADDR(9 downto 0) <= save_addr(9 downto 0); -- 10 bits de coluna
                         DRAM_DQ(7 downto 0)  <= input_data; 
                         DRAM_DQ(15 downto 8) <= (others => '0');
+                        DRAM_LDQM <= '0';
+                        DRAM_UDQM <= '0';
 
                 when NOP=>
                         DRAM_CS_N <= '0';
