@@ -270,7 +270,8 @@ begin
     begin
         if rst = '1' then
             data_out <= (others => '0');
-        elsif falling_edge(clk_143) then
+        elsif rising_edge(clk_143) then
+            -- O dado de leitura com CAS 3 tem que ser lido exatamente quando a máquina entra no precharge
             if state = precharge and action = '0' then
                 data_out <= DRAM_DQ(7 downto 0);
             end if;
