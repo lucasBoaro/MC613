@@ -133,6 +133,7 @@ begin
                         state <= Wait_ready;
                         
                 end case;
+				end if;
         end if;
     end process;
 
