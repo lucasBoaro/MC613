@@ -144,7 +144,11 @@ begin
 	-- and the input (do not wait for a clock edge).
 	process (state, save_addr, input_data)
 	begin
-        --Valores default
+        --Valores default - idle e qualquer estado "imprevisto" cai nesses valores
+        DRAM_CS_N  <= '0';
+        DRAM_RAS_N <= '1';
+        DRAM_CAS_N <= '1';
+        DRAM_WE_N  <= '1';
         DRAM_LDQM <= '1';
         DRAM_UDQM <= '1';
         DRAM_CKE <= '1';
