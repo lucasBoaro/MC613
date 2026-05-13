@@ -65,9 +65,6 @@ begin
 			state <= reset_st;
 
 		elsif (rising_edge(clk_143)) then
-				if state = NOP and next_state = precharge and action = '0' then
-					  data_out <= DRAM_DQ(7 downto 0);
-				 end if;
             -- =======================================================
             -- LÓGICA MOVIDA PARA CÁ (Dentro do MESMO process)
             -- Como estamos no mesmo process, o curto-circuito acaba!
@@ -269,7 +266,15 @@ begin
         end if;
     end process;
     
+    process (clk_143, rst)
+    begin
+        if rst = '1' then
+            data_out <= (others => '0');
+        elsif falling_edge(clk_143) then
+            if state = precharge and action = '0' then
+                data_out <= DRAM_DQ(7 downto 0);
+            end if;
+        end if;
+    end process;
     
-    
-
 end behavior;
