@@ -23,7 +23,7 @@ ENTITY dramController is
         DRAM_LDQM : OUT STD_lOGIC;
         DRAM_UDQM : OUT STD_lOGIC;
         DRAM_BA : OUT STD_lOGIC_VECTOR (1 DOWNTO 0);
-        DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- INOUT porque os pinos são bidirecionais (Recebimento e envio de dados na mesma pinagem) 
+        DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- INOUT porque os pinos são bidirecionais (Recebimento e envio de dados na mesma pinagem)
     );
 END dramController;
 

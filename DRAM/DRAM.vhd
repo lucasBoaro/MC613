@@ -13,6 +13,7 @@ entity DRAM is
 		HEX4: out std_logic_vector(6 downto 0);
 		HEX1: out std_logic_vector(6 downto 0); 
 		HEX0: out std_logic_vector(6 downto 0);
+        DRAM_CLK: out std_logic;
         
         -- Conexões para a DRAM 
         DRAM_CS_N : OUT STD_LOGIC;
@@ -121,6 +122,7 @@ begin
             ready => ready,
             write_in => bit_write,
             read_in => bit_read,
+            dram_clk => clk,
 
             DRAM_CS_N => DRAM_CS_N,
             DRAM_RAS_N => DRAM_RAS_N,
