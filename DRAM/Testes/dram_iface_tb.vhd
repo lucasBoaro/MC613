@@ -157,20 +157,20 @@ begin
         wait for 35 ns;
 
         -- =========================================================
-        -- OPERAÇÃO INTERROMPIDA POR RESET
+        -- OPERACAO INTERROMPIDA POR RESET
         -- =========================================================
-        write(line_out, string'("=== OPERAÇÃO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
+        write(line_out, string'("=== OPERACAO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
 
         tb_ready <= '1';
         wait for 14 ns;
 
-        -- Simula usuário a pedir para escrever o valor 15 
+        -- Simula usuario a pedir para escrever o valor 15 
         tb_data_in_write <= "1111";
         tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1';
         
         wait for 7 ns; -- Espera 1 ciclo para entrar no estado Req_write
         
-        print_status("Iniciou a escrita. O sinal (write_req DEVE estar em '1')");
+        print_status("Iniciou a escrita. O sinal (write_req deve estar em '1')");
 
         -- Simula o usuário apertando o botão de reset durante a escrita
         tb_rst <= '1';
@@ -178,7 +178,7 @@ begin
         
         print_status("Reset apertado. A maquina deve voltar ao estado inicial (write_req deve cair para '0')");
         
-        -- Solta o botão de reset
+        -- Solta o botao de reset
         tb_rst <= '0';
         wait for 35 ns;
         
@@ -187,7 +187,7 @@ begin
         write(line_out, string'("Teste concluido com sucesso!"));
         writeline(output, line_out);
         
-        sim_finished <= true; -- Para o clock e encerra a simulação lindamente
+        sim_finished <= true; -- Para o clock e encerra a simulação
         wait;
     end process;
 end behavior;
