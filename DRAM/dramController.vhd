@@ -55,7 +55,7 @@ architecture behavior of dramController is
 	-- Register to hold the current state
 	signal state : state_type;
     signal next_state : state_type;
-    signal read_delay : std_logic_vector(3 downto 0) := "0000";
+    signal read_delay : std_logic_vector(4 downto 0) := "00000";
 
 begin
     state_debug <= state;
@@ -72,6 +72,7 @@ begin
             -- =======================================================
             if req = '1' and IS_READY = '1' then
                 completed <= '0';
+                IS_READY <= '0'; -- Derruba imediatamente para a iface não furar a fila
                 input_data <= data_in;
                 save_addr <= address;
 
@@ -114,9 +115,10 @@ begin
 
                 when idle=>
                     if block_idle = '0' then
-                        IS_READY <= '1';
                         if completed = '0' then
                             state <= act;
+                        else
+                            IS_READY <= '1';
                         end if;
                     else
                         IS_READY <= '0';
@@ -271,11 +273,11 @@ begin
     begin
         if rst = '1' then
             data_out <= (others => '0');
-            read_delay <= "0000";
+            read_delay <= "00000";
         elsif falling_edge(clk_143) then
             -- Mapeamento rígido e exato para CAS Latency = 3
             -- O dado sai da DRAM na janela entre 29.9ns e 34.0ns.
-            -- A borda falling_edge T4.5 acontece em exatos 31.5ns.
+            -- A borda falling_edge verdadeira correspondente atinge = 31.5ns (index 4).
             read_delay(0) <= '0';
             if state = read_st then
                 read_delay(0) <= '1';
@@ -283,8 +285,9 @@ begin
             read_delay(1) <= read_delay(0);
             read_delay(2) <= read_delay(1);
             read_delay(3) <= read_delay(2);
+            read_delay(4) <= read_delay(3);
             
-            if read_delay(2) = '1' then
+            if read_delay(4) = '1' then
                 data_out <= DRAM_DQ(7 downto 0);
             end if;
         end if;
