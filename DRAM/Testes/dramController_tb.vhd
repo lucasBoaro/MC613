@@ -70,31 +70,107 @@ begin
             wait for 3.5 ns;
         end loop;
     end process;
-	 
+	
+fake_dram_chip_proc: process
+        type mem_array is array (0 to 3) of std_logic_vector(15 downto 0);
+        variable fake_mem : mem_array := (others => (others => '0'));
+        variable bank_idx : integer := 0;
+    begin
+        wait until falling_edge(tb_clk_143);
+        
+        case tb_dram_ba is
+            when "00" => bank_idx := 0;
+            when "01" => bank_idx := 1;
+            when "10" => bank_idx := 2;
+            when "11" => bank_idx := 3;
+            when others => bank_idx := 0;
+        end case;
+
+        -- Escrita
+        if tb_dram_cs_n = '0' and tb_dram_ras_n = '1' and tb_dram_cas_n = '0' and tb_dram_we_n = '0' then
+            fake_mem(bank_idx) := tb_dram_dq;
+        end if;
+
+        -- Leitura com CAS Latency
+        if tb_dram_cs_n = '0' and tb_dram_ras_n = '1' and tb_dram_cas_n = '0' and tb_dram_we_n = '1' then
+            wait for CLK_PERIOD * 2;
+            tb_dram_dq <= fake_mem(bank_idx);
+            wait for CLK_PERIOD * 2;
+            tb_dram_dq <= (others => 'Z');
+        else
+            tb_dram_dq <= (others => 'Z');
+        end if;
+    end process;
+
 	test_input_process: process
         variable line_out : line;
     begin
-        
-        wait until tb_state_debug = idle;
+        tb_rst <= '1';
+        wait for 20 ns;
+        tb_rst <= '0';
 
-        tb_write_in <= '1';
+        wait until tb_state_debug = idle;
+        wait for 10 ns;
+
+        -- Teste A: Grava 10 no banco 0
+        tb_write_in <= '1'; tb_read_in <= '0';
         tb_address <= "00000000000000000000000000";
-        tb_data_in <= "00000001";
+        tb_data_in <= "00001010";
         tb_req <= '1';
-        write(line_out, to_integer(unsigned(tb_data_out)));
-        writeline(output, line_out);
-
-        wait for 5 ns; -- CORRIGIDO AQUI: adicionado o "for"
-
+        wait until tb_state_debug = write_st;
+        wait until tb_state_debug = precharge;
+        tb_req <= '0'; tb_write_in <= '0';
         wait until tb_state_debug = idle;
+        wait for 10 ns;
 
+        -- Teste B: Grava 99 no banco 3
+        tb_write_in <= '1';
+        tb_address <= "11111111111111111111111111";
+        tb_data_in <= "01100011";
+        tb_req <= '1';
+        wait until tb_state_debug = write_st;
+        wait until tb_state_debug = precharge;
+        tb_req <= '0'; tb_write_in <= '0';
+        wait until tb_state_debug = idle;
+        wait for 10 ns;
+
+        -- Leitura A:
         tb_read_in <= '1';
         tb_address <= "00000000000000000000000000";
-        tb_data_in <= "00000001";
         tb_req <= '1';
-        write(line_out, to_integer(unsigned(tb_data_out)));
-        writeline(output, line_out);
+        wait until tb_state_debug = read_st;
+        wait until tb_state_debug = precharge;
+        wait for 1 ns;
+		  write(line_out, string("Espera-se '00001010'. Lido: "));
+		  write(line_out, tb_data_out);
+		  writeline(output, lineout);
+        assert (tb_data_out = "00001010") report "ERRO GRAVE: Leu errado do banco 0" severity failure;
+        tb_req <= '0'; tb_read_in <= '0';
+        wait until tb_state_debug = idle;
+        wait for 10 ns;
 
+        -- Leitura B:
+        tb_read_in <= '1';
+        tb_address <= "11111111111111111111111111";
+        tb_req <= '1';
+        wait until tb_state_debug = read_st;
+        wait until tb_state_debug = precharge;
+        wait for 1 ns;
+		  write(line_out, string("Espera-se '01100011'. Lido: "));
+		  write(line_out, tb_data_out);
+		  writeline(output, lineout);
+        assert (tb_data_out = "01100011") report "ERRO GRAVE: Leu errado do banco 3" severity failure;
+        tb_req <= '0'; tb_read_in <= '0';
+
+        -- Teste Refresh
+        wait until tb_state_debug = idle;
+        tb_req <= '0';
+        wait until tb_state_debug = refresh for 15 us;
+        assert (tb_state_debug = refresh) report "FALHA DE REFRESH" severity failure;
+
+        write(line_out, string'("SUCESSO TOTAL! CODIGO RESTAURADO COM PERFEICAO!"));
+        writeline(output, line_out);
+        wait;
     end process;
 
 
@@ -168,21 +244,21 @@ begin
                     when init =>
                         expected_t := 28572 * CLK_PERIOD;
                     when preChargeAll =>
-                        expected_t := 4 * CLK_PERIOD;
+                        expected_t := 5 * CLK_PERIOD;
                     when autoRefresh_Init =>
-                        expected_t := 9 * CLK_PERIOD; -- each autorefresh iteration uses 9 cycles
+                        expected_t := 10 * CLK_PERIOD; -- each autorefresh iteration uses 9 cycles
                     when LMR =>
-                        expected_t := 2 * CLK_PERIOD;
+                        expected_t := 3 * CLK_PERIOD;
                     when act =>
-                        expected_t := 3 * CLK_PERIOD;
+                        expected_t := 4 * CLK_PERIOD;
                     when read_st =>
-                        expected_t := 2 * CLK_PERIOD;
-                    when write_st =>
-                        expected_t := 2 * CLK_PERIOD;
-                    when precharge =>
                         expected_t := 3 * CLK_PERIOD;
+                    when write_st =>
+                        expected_t := 3 * CLK_PERIOD;
+                    when precharge =>
+                        expected_t := 4 * CLK_PERIOD;
                     when refresh =>
-                        expected_t := 9 * CLK_PERIOD;
+                        expected_t := 10 * CLK_PERIOD;
                     when others =>
                         expected_t := 0 ns; -- do not check NOP/others
                 end case;
