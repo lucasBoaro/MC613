@@ -71,7 +71,7 @@ begin
             outclk_0 => clk,
             locked   => open
         );
-		 dram_clk <= NOT clk;
+		 dram_clk <= clk;
 
 
 

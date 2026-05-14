@@ -274,10 +274,7 @@ begin
         if rst = '1' then
             data_out <= (others => '0');
             read_delay <= "00000";
-        elsif falling_edge(clk_143) then
-            -- Mapeamento rígido e exato para CAS Latency = 3
-            -- O dado sai da DRAM na janela entre 29.9ns e 34.0ns.
-            -- A borda falling_edge verdadeira correspondente atinge = 31.5ns (index 4).
+        elsif rising_edge(clk_143) then
             read_delay(0) <= '0';
             if state = read_st then
                 read_delay(0) <= '1';
@@ -287,7 +284,7 @@ begin
             read_delay(3) <= read_delay(2);
             read_delay(4) <= read_delay(3);
             
-            if read_delay(4) = '1' then
+            if read_delay(3) = '1' then
                 data_out <= DRAM_DQ(7 downto 0);
             end if;
         end if;
