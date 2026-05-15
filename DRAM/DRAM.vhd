@@ -5,10 +5,9 @@ use ieee.numeric_std.all;
 -- Cria a entidade maior, o top level 
 entity DRAM is
 	port (
-        CLK_50     : in  std_logic;
+        CLOCK_50     : in  std_logic;
         SW      : in  std_logic_vector(9 downto 0);
-        KEY3     : in  std_logic;
-        KEY0     : in  std_logic;
+        KEY     : in  std_logic_vector(3 downto 0);
         HEX5: out std_logic_vector(6 downto 0);
 			HEX4: out std_logic_vector(6 downto 0);
 			HEX1: out std_logic_vector(6 downto 0); 
@@ -55,23 +54,24 @@ architecture Behavioral of DRAM is
             refclk   : IN  STD_LOGIC := '0';
             rst      : IN  STD_LOGIC := '0';
             outclk_0 : OUT STD_LOGIC;
+            outclk_1 : OUT STD_LOGIC;
             locked   : OUT STD_LOGIC
         );
     END COMPONENT;
 
 begin
-    rst_geral <= not KEY0;
+    rst_geral <= not KEY(0);
     bin_in_hex5 <= "00" & SW(9 downto 8);
     req_controller <= bit_write or bit_read;
-    -- Instância do PLL para gerar o clock de pixel ( MHz)
+
     instanciaPLL: pll
         port map (
-            refclk   => CLK_50,
+            refclk   => CLOCK_50,
             rst      => '0',
-            outclk_0 => clk,
-            locked   => open
+            outclk_0 => clk,       
+            outclk_1 => DRAM_CLK,  
+            locked   => open      
         );
-		 dram_clk <= clk;
 
 
 
@@ -81,7 +81,7 @@ begin
             rst => rst_geral,
             address => SW(9 downto 4),  
             data_in_write => SW(3 downto 0),
-            key_3 => KEY3,
+            key_3 => KEY(3),
             ready => ready,
             
             data_out_adress => address,
@@ -98,7 +98,7 @@ begin
     
     instancia_bin2hex_addr_hex5: entity work.bin2hex
         port map (
-            BIN => bin_in_hex5, -- Fio limpo, sem concatenação aqui!
+            BIN => bin_in_hex5,
             HEX => HEX5
         );
 

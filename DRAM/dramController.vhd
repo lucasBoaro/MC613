@@ -65,13 +65,6 @@ begin
 			state <= reset_st;
 
 		elsif (rising_edge(clk_143)) then
-				if state = NOP and next_state = precharge and action = '0' then
-					  data_out <= DRAM_DQ(7 downto 0);
-				 end if;
-            -- =======================================================
-            -- LÓGICA MOVIDA PARA CÁ (Dentro do MESMO process)
-            -- Como estamos no mesmo process, o curto-circuito acaba!
-            -- =======================================================
             if req = '1' and IS_READY = '1' then
                 completed <= '0';
                 input_data <= data_in;
@@ -83,7 +76,6 @@ begin
                     action <= '0';
                 end if;
             end if;
-            -- =======================================================
 
 			case state is
 				when reset_st=> 
@@ -110,7 +102,7 @@ begin
                     end if;                    
 
                 when LMR=>
-                    counter <= 3;
+                    counter <= 1;
                     state <= NOP;
                     next_state <= idle;
 
@@ -122,11 +114,11 @@ begin
                         end if;
                     else
                         IS_READY <= '0';
-                        state <= refresh; -- Ao invés de mexer nos pinos no outro processo, nós transicionamos o estado pra cá.
+                        state <= refresh;
                     end if;
 
                 when act=>
-                    counter <= 4;
+                    counter <= 2;
                     IS_READY <= '0';
                     if action = '1' then
                         next_state <= write_st;
@@ -136,7 +128,7 @@ begin
                     state <= NOP;
 
                 when write_st=>
-                    counter <= 3;
+                    counter <= 2; 
                     next_state <= precharge;
                     state <= NOP;
 
@@ -146,7 +138,7 @@ begin
                     state <= NOP;
 
                 when precharge=>
-                    counter <= 4;
+                    counter <= 2; 
                     next_state <= idle;
                     state <= NOP;
                     completed <= '1';
@@ -237,7 +229,7 @@ begin
                         DRAM_RAS_N <= '0';
                         DRAM_CAS_N <= '1';
                         DRAM_WE_N <= '0';
-                        DRAM_ADDR(10) <= '1'; -- O bit 10 em '1' fecha todos os bancos com segurança
+                        DRAM_ADDR(10) <= '1'; --A10 == 1 para selecionar todos os bancos
                 when NOP=>
                         DRAM_CS_N <= '0';
                         DRAM_RAS_N <= '1';
@@ -269,7 +261,15 @@ begin
         end if;
     end process;
     
+    process (clk_143, rst)
+    begin
+        if rst = '1' then
+            data_out <= (others => '0');
+        elsif rising_edge(clk_143) then
+            if state = NOP and next_state = precharge and counter = 1 and action = '0' then
+                data_out <= DRAM_DQ(7 downto 0);
+            end if;
+        end if;
+    end process;
     
-    
-
 end behavior;
