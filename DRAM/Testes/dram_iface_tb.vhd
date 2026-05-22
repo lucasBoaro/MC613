@@ -78,10 +78,6 @@ begin
 
     begin
         write(line_out, string'("Iniciando Teste do dram_iface com Log...")); writeline(output, line_out); writeline(output, line_out);
-        
-        -- Simulamos que o controlador DRAM está ligado e pronto para receber uma requisição
-        tb_ready <= '1'; 
-        wait for 35 ns;
 
         -- =========================================================
         -- OPERACAO DE ESCRITA
@@ -89,7 +85,8 @@ begin
 			write(line_out, string'("OPERACAO DE ESCRITA"));
         -- Simula usuário digitando o valor 10 e em seguida apertando o botão key 3 para solicitar a requisição da escrita
         tb_data_in_write <= "1010"; 
-        tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão
+        tb_key_3 <= '0'; wait for 7 ns; tb_key_3 <= '1'; -- Simula clicar o botão
+        tb_ready <= '1';  
         
         wait for 14 ns; -- Devemos esperar dois ciclos de clock para que o estado seja atualizado (deve entrar no estado de requisição de escrita)
         wait for 70 ns; -- Podemos esperar o tempo que for, pois o estado só deve mudar após o sinal ready = 0
@@ -154,8 +151,6 @@ begin
         wait for 14 ns;
         tb_ready <= '0'; -- Leitura automática
         wait for 49 ns;
-        tb_ready <= '1';
-        wait for 7 ns;
 
         -- =========================================================
         -- OPERACAO INTERROMPIDA POR RESET
@@ -164,7 +159,8 @@ begin
 
         -- Simula usuario a pedir para escrever o valor 15 
         tb_data_in_write <= "1111";
-        tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1';
+        tb_key_3 <= '0'; wait for 7 ns; tb_key_3 <= '1';
+        tb_ready <= '1'; -- Controlador recebe a requisição de escrita
         
         wait for 7 ns; -- Espera 1 ciclo para entrar no estado Req_write
         
@@ -178,9 +174,9 @@ begin
         
         -- Solta o botao de reset
         tb_rst <= '0';
-        wait for 35 ns;
+        wait for 7 ns;
         
-        print_status("Reset solto. Sistema em Wait_ready aguardando novos comandos.");
+        print_status("Reset solto. Sistema em Wait_ready.");
         -- =========================================================
         write(line_out, string'("Teste concluido com sucesso!"));
         writeline(output, line_out);
