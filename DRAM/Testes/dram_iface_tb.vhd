@@ -91,39 +91,40 @@ begin
         tb_data_in_write <= "1010"; 
         tb_key_3 <= '0'; wait for 14 ns; tb_key_3 <= '1'; -- Simula clicar e soltar o botão
         
-        wait for 14 ns; -- Devemos esperar um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de escrita)
-
+        wait for 14 ns; -- Devemos esperar dois ciclos de clock para que o estado seja atualizado (deve entrar no estado de requisição de escrita)
+        wait for 70 ns; -- Podemos esperar o tempo que for, pois o estado só deve mudar após o sinal ready = 0
         print_status("Apertou KEY_3. (write_req deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a escrita
-        wait for 49 ns; -- Espera o tempo necessário para processar a escrita
-        print_status("Passou os 3 clocks dentro do estado de requisição de escrita, agora deve estar no estado wait_write, esperando o ready voltar a '1' para finalizar a escrita. (write_req deve estar em '0')");
+        wait for 14 ns; -- Espera dois ciclos de clock para atualizar o estado
+        wait for 70 ns; -- Podemos esperar o tempo que for, pois o estado só deve mudar após o sinal ready = 1
+        print_status("A requisição de escrita já foi realizada, agora deve estar no estado wait_write, esperando o ready voltar a '1' para finalizar a escrita. (write_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de gravar e voltou a ficar pronto para receber requisições
         
-        wait for 14 ns; -- Espera um ciclo de clock para atualizar o estado 
+        wait for 21 ns; -- Espera três ciclos de clock para atualizar o estado 
         print_status("Escrita terminou. (read_req automatico deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a leitura
-        wait for 49 ns; -- Espera o tempo necessário para processar a leitura
-        print_status("Passou os 3 clocks dentro do estado de requisição de leitura, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
+        wait for 14 ns; -- Espera dois ciclos de clock para atualizar o estado
+        wait for 70 ns; -- Podemos esperar o tempo que for, pois o estado só deve mudar após o sinal ready = 1        
+        print_status("A requisição de leitura já foi realizada, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de ler e voltou a ficar pronto para receber requisições
-        wait for 35 ns;
 
         -- =========================================================
-        -- OPERACAO DE LEITURA POR MUDANCA DE ENDERECO
+        -- OPERACAO DE LEITURA AUTOMÁTICA
         -- =========================================================
-        write(line_out, string'("=== OPERACAO DE LEITURA POR MUDANCA DE ENDERECO ===")); writeline(output, line_out);
+        write(line_out, string'("=== OPERACAO DE LEITURA AUTOMATICA ===")); writeline(output, line_out);
         
-        -- Nota: Simulando os bits mapeados (SW 5 e 4 controlam os bits 1 e 0 do Address)
         tb_address_in <= "000011"; -- Usuário altera o switch
-        wait for 14 ns; -- Espera um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de leitura)        
-        print_status("Switch alterado. (read_req deve estar em '1')");
+        wait for 21 ns; -- Espera um ciclo de clock para que o estado seja atualizado (deve entrar no estado de requisição de leitura)        
+        print_status("Leitura automática solicitada. (read_req deve estar em '1')");
         
         tb_ready <= '0'; -- Está processando a leitura
-        wait for 49 ns;
-        print_status("Passou os 3 clocks dentro do estado de requisição de leitura, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
+        wait for 14 ns; -- Espera dois ciclos de clock para atualizar o estado
+        wait for 70 ns; -- Podemos esperar o tempo que for, pois o estado só deve mudar após o sinal ready = 1        
+        print_status("A requisição de leitura já foi realizada, agora deve estar no estado wait_read, esperando o ready voltar a '1' para finalizar a leitura. (read_req deve estar em '0')");
         tb_ready <= '1'; -- Terminou de ler e voltou a ficar pronto para receber requisições
-        wait for 35 ns;
+        wait for 7 ns;
 
         -- =========================================================
         -- OPERACAO DE ESCRITA, DURANTE UM REFRESH (READY EM '0')
@@ -154,15 +155,12 @@ begin
         tb_ready <= '0'; -- Leitura automática
         wait for 49 ns;
         tb_ready <= '1';
-        wait for 35 ns;
+        wait for 7 ns;
 
         -- =========================================================
         -- OPERACAO INTERROMPIDA POR RESET
         -- =========================================================
         write(line_out, string'("=== OPERACAO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
-
-        tb_ready <= '1';
-        wait for 14 ns;
 
         -- Simula usuario a pedir para escrever o valor 15 
         tb_data_in_write <= "1111";
