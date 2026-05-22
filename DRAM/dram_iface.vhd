@@ -3,7 +3,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity dram_iface is
     Port (
-        -- É fundamental ter um clock e, de preferência, um reset
         clk             : in  STD_LOGIC;     
         rst             : in  STD_LOGIC;    
         address         : in  STD_LOGIC_VECTOR(5 downto 0); 
@@ -31,6 +30,7 @@ begin
     data_out_write(3 downto 0) <= data_in_write;
     data_out_write(7 downto 4) <= "0000";
 
+    -- Mapeamento dos bits de endereço conforme os switches
     process(address)
     begin
         data_out_adress <= (others => '0'); 
@@ -104,7 +104,6 @@ begin
 
     process(state)
     begin
-        -- Valores padrões para evitar latches
         read_out <= '0';
         write_out <= '0';
         
@@ -116,7 +115,7 @@ begin
                 read_out <= '1';
                 
             when others =>
-                null; -- Mantém os valores padrões (0)
+                null;
         end case;
     end process;
 
