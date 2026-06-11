@@ -32,8 +32,6 @@ end entity;
 architecture Behavioral of DRAM is
 
     -- Sinais internos
-    signal address_in_iface         : std_logic_vector(5 downto 0);
-    signal data_in_write_iface   : std_logic_vector(3 downto 0);
     signal ready          : std_logic;
     
     signal address : std_logic_vector(25 downto 0);
