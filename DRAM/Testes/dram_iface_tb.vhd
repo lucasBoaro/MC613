@@ -144,12 +144,10 @@ begin
         
         print_status("Refresh acabou, a chamada da escrita deve ser realizada agora. (write_req deve estar em '1')");
 
-        tb_ready <= '0'; -- Está processando a escrita
-
         -- =========================================================
         -- OPERACAO INTERROMPIDA POR RESET
         -- =========================================================
-        
+
         write(line_out, string'("=== OPERACAO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
         
         -- reaproveoitando a escrita anterior
