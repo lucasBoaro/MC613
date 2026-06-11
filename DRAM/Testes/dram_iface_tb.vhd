@@ -143,28 +143,17 @@ begin
         wait for 14 ns; 
         
         print_status("Refresh acabou, a chamada da escrita deve ser realizada agora. (write_req deve estar em '1')");
-        
-        tb_ready <= '0'; -- Controlador processa a escrita
-        wait for 49 ns;
-        tb_ready <= '1'; -- Controlador finaliza a escrita e volta a ficar pronto para receber requisições
-        
-        wait for 14 ns;
-        tb_ready <= '0'; -- Leitura automática
-        wait for 49 ns;
+
+        tb_ready <= '0'; -- Está processando a escrita
 
         -- =========================================================
         -- OPERACAO INTERROMPIDA POR RESET
         -- =========================================================
+        
         write(line_out, string'("=== OPERACAO INTERROMPIDA POR RESET ===")); writeline(output, line_out);   
-
-        -- Simula usuario a pedir para escrever o valor 15 
-        tb_data_in_write <= "1111";
-        tb_key_3 <= '0'; wait for 7 ns; tb_key_3 <= '1';
-        tb_ready <= '1'; -- Controlador recebe a requisição de escrita
         
-        wait for 7 ns; -- Espera 1 ciclo para entrar no estado Req_write
-        
-        print_status("Iniciou a escrita. O sinal (write_req deve estar em '1')");
+        -- reaproveoitando a escrita anterior
+        print_status("Está no meio de um processo de escrita. O sinal (write_req deve estar em '1')"); 
 
         -- Simula o usuário apertando o botão de reset durante a escrita
         tb_rst <= '1';
