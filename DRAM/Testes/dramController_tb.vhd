@@ -31,7 +31,8 @@ architecture behavior of dramController_tb is
     signal tb_dram_ba    : std_logic_vector(1 downto 0);
     signal tb_dram_dq    : std_logic_vector(15 downto 0) := (others => 'Z');
     signal tb_state_debug : state_type;
-    constant CLK_PERIOD : time := 7 ns; -- clock period used in this TB (7ns high + 7ns low)
+    signal sim_finished  : boolean := false;
+    constant CLK_PERIOD : time := 7 ns;
 
 begin
 
@@ -63,12 +64,13 @@ begin
 
     clk_process : process
     begin
-        while true loop
+        while not sim_finished loop
             tb_clk_143 <= '0';
             wait for 3.5 ns;
             tb_clk_143 <= '1';
             wait for 3.5 ns;
         end loop;
+        wait;
     end process;
 	
 fake_dram_chip_proc: process
@@ -141,9 +143,9 @@ fake_dram_chip_proc: process
         wait until tb_state_debug = read_st;
         wait until tb_state_debug = precharge;
         wait for 1 ns;
-		  write(line_out, string("Espera-se '00001010'. Lido: "));
+		  write(line_out, string'("Espera-se '00001010'. Lido: "));
 		  write(line_out, tb_data_out);
-		  writeline(output, lineout);
+		  writeline(output, line_out);
         assert (tb_data_out = "00001010") report "ERRO GRAVE: Leu errado do banco 0" severity failure;
         tb_req <= '0'; tb_read_in <= '0';
         wait until tb_state_debug = idle;
@@ -156,9 +158,9 @@ fake_dram_chip_proc: process
         wait until tb_state_debug = read_st;
         wait until tb_state_debug = precharge;
         wait for 1 ns;
-		  write(line_out, string("Espera-se '01100011'. Lido: "));
+		  write(line_out, string'("Espera-se '01100011'. Lido: "));
 		  write(line_out, tb_data_out);
-		  writeline(output, lineout);
+		  writeline(output, line_out);
         assert (tb_data_out = "01100011") report "ERRO GRAVE: Leu errado do banco 3" severity failure;
         tb_req <= '0'; tb_read_in <= '0';
 
@@ -170,6 +172,7 @@ fake_dram_chip_proc: process
 
         write(line_out, string'("SUCESSO TOTAL! CODIGO RESTAURADO COM PERFEICAO!"));
         writeline(output, line_out);
+        sim_finished <= true;
         wait;
     end process;
 
@@ -226,7 +229,7 @@ fake_dram_chip_proc: process
 
     -- Measure time spent in deterministic states and assert expected durations
     check_state_timing: process(tb_state_debug)
-        variable last_state  : state_type := tb_state_debug;
+        variable last_state  : state_type := reset_st;
         variable last_time   : time := 0 ns;
         variable delta       : time;
         variable expected_t  : time;
