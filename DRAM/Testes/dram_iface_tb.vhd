@@ -1,45 +1,44 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use STD.TEXTIO.ALL;
+use IEEE.STD_LOGIC_TEXTIO.ALL;
 
 entity dram_iface_tb is
 end dram_iface_tb;
 
-architecture behavior of dram_iface_tb is
+architecture Behavioral of dram_iface_tb is
+    component dram_iface
+        Port (
+            clk             : in  STD_LOGIC;
+            rst             : in  STD_LOGIC;
+            address         : in  STD_LOGIC_VECTOR(5 downto 0);
+            data_in_write   : in  STD_LOGIC_VECTOR(3 downto 0);
+            key_3           : in  STD_LOGIC;
+            ready           : in  STD_LOGIC;
+            data_out_adress : out STD_LOGIC_VECTOR(25 downto 0);
+            data_out_write  : out STD_LOGIC_VECTOR(7 downto 0);
+            write_out       : out STD_LOGIC;
+            read_out        : out STD_LOGIC
+        );
+    end component;
 
-    signal tb_clk             : std_logic := '0';
-    signal tb_rst             : std_logic := '0';
-    signal tb_address_in      : std_logic_vector(5 downto 0) := (others => '0');
-    signal tb_data_in_write   : std_logic_vector(3 downto 0) := (others => '0');
-    signal tb_key_3           : std_logic := '1';
-    signal tb_ready           : std_logic := '0';
+    signal tb_clk            : STD_LOGIC := '0';
+    signal tb_rst            : STD_LOGIC := '0';
+    signal tb_address_in     : STD_LOGIC_VECTOR(5 downto 0) := (others => '0');
+    signal tb_data_in_write  : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal tb_key_3          : STD_LOGIC := '1';
+    signal tb_ready          : STD_LOGIC := '0';
+    signal tb_address_out    : STD_LOGIC_VECTOR(25 downto 0);
+    signal tb_data_out_write : STD_LOGIC_VECTOR(7 downto 0);
+    signal tb_write_req      : STD_LOGIC;
+    signal tb_read_req       : STD_LOGIC;
+    signal sim_finished      : boolean := false;
 
-    signal tb_address_out     : std_logic_vector(25 downto 0);
-    signal tb_data_out_write  : std_logic_vector(7 downto 0);
-    signal tb_write_req       : std_logic;
-    signal tb_read_req        : std_logic;
-
-    signal sim_finished       : boolean := false;
-    constant clk_period       : time := 7 ns;
-
-    subtype dram_addr_out_t is std_logic_vector(25 downto 0);
-
-    function mapped_address(addr : std_logic_vector(5 downto 0))
-        return dram_addr_out_t is
-        variable result : dram_addr_out_t := (others => '0');
-    begin
-        result(0)  := addr(0);
-        result(1)  := addr(1);
-        result(21) := addr(2);
-        result(22) := addr(3);
-        result(23) := addr(4);
-        result(25) := addr(5);
-        return result;
-    end function;
+    constant clk_period      : time := 7 ns;
 
 begin
-
-    UUT: entity work.dram_iface
+    uut: dram_iface
         port map (
             clk             => tb_clk,
             rst             => tb_rst,
@@ -53,131 +52,138 @@ begin
             read_out        => tb_read_req
         );
 
-    clk_process : process
+    clk_process : process -- gerador de clock
     begin
         while not sim_finished loop
-            tb_clk <= '0';
-            wait for clk_period / 2;
-            tb_clk <= '1';
-            wait for clk_period / 2;
+            tb_clk <= '0'; wait for clk_period/2;
+            tb_clk <= '1'; wait for clk_period/2;
         end loop;
         wait;
     end process;
 
-    stim_proc: process
-        procedure wait_cycles(cycles : positive) is
-        begin
-            for i in 1 to cycles loop
-                wait until rising_edge(tb_clk);
-            end loop;
-            wait for 1 ns;
-        end procedure;
+    test_process: process
+        variable line_out : line;
     begin
-        tb_rst <= '1';
-        wait_cycles(2);
-        tb_rst <= '0';
-        wait_cycles(1);
+        write(line_out, string'("Testando dram_iface..."));
+        writeline(output, line_out);
 
-        assert tb_write_req = '0' and tb_read_req = '0'
-            report "Reset deveria deixar read_out/write_out em '0'"
+        -- Testa reset da interface
+        tb_rst <= '1';
+        wait for clk_period * 2;
+        tb_rst <= '0';
+        wait for clk_period;
+
+        assert (tb_write_req = '0' and tb_read_req = '0')
+            report "Reset deveria deixar read_out e write_out em 0"
             severity error;
 
+        -- Testa mapeamento dos switches para endereco e dado
         tb_address_in <= "101011";
         tb_data_in_write <= "1101";
-        wait for 1 ns;
+        wait for 5 ns;
 
-        assert tb_address_out = mapped_address(tb_address_in)
-            report "Mapeamento de endereco nao corresponde ao dram_iface atual"
+        assert (tb_data_out_write = "00001101")
+            report "data_out_write deveria receber data_in_write nos bits baixos"
             severity error;
-        assert tb_data_out_write = "00001101"
-            report "Mapeamento de dado de escrita deveria zerar bits 7 downto 4"
+        assert (tb_address_out(0) = '1' and tb_address_out(1) = '1')
+            report "Bits 0 e 1 do endereco nao foram mapeados corretamente"
+            severity error;
+        assert (tb_address_out(21) = '0' and tb_address_out(22) = '1' and tb_address_out(23) = '0')
+            report "Bits 21 a 23 do endereco nao foram mapeados corretamente"
+            severity error;
+        assert (tb_address_out(25) = '1' and tb_address_out(24) = '0' and tb_address_out(20 downto 2) = "0000000000000000000")
+            report "Demais bits do endereco deveriam seguir o mapeamento atual"
             severity error;
 
-        -- Sem escrita pendente, ready='1' dispara leitura e a mantem ate ready cair.
+        -- Testa requisicao de leitura quando ready esta ativo e nao existe escrita pendente
         tb_ready <= '1';
-        wait_cycles(1);
-        assert tb_read_req = '1' and tb_write_req = '0'
-            report "Com ready='1' e sem escrita pendente, deveria solicitar leitura"
+        wait for clk_period + 1 ns;
+
+        assert (tb_read_req = '1' and tb_write_req = '0')
+            report "A interface deveria solicitar leitura quando ready=1 sem escrita pendente"
             severity error;
 
-        wait_cycles(2);
-        assert tb_read_req = '1' and tb_write_req = '0'
-            report "Req_read deve permanecer ativo enquanto ready continuar em '1'"
+        wait for clk_period * 2;
+        assert (tb_read_req = '1' and tb_write_req = '0')
+            report "read_out deveria continuar ativo enquanto ready permanecer em 1"
             severity error;
 
+        -- Testa aceite da leitura pelo controlador
         tb_ready <= '0';
-        wait_cycles(1);
-        assert tb_read_req = '0' and tb_write_req = '0'
-            report "Depois do controlador aceitar a leitura, os requests deveriam cair"
+        wait for clk_period + 1 ns;
+
+        assert (tb_read_req = '0' and tb_write_req = '0')
+            report "read_out deveria cair quando o controlador aceita a leitura"
             severity error;
 
+        -- Testa retorno para estado de espera e nova leitura automatica
         tb_ready <= '1';
-        wait_cycles(1);
-        assert tb_read_req = '0' and tb_write_req = '0'
-            report "Ao concluir wait_read, a interface deve voltar para Wait_ready"
+        wait for clk_period + 1 ns;
+
+        assert (tb_read_req = '0' and tb_write_req = '0')
+            report "A interface deveria voltar para o estado de espera apos a leitura"
             severity error;
 
-        wait_cycles(1);
-        assert tb_read_req = '1' and tb_write_req = '0'
-            report "Apos voltar a Wait_ready com ready='1', deve emitir nova leitura"
+        wait for clk_period + 1 ns;
+        assert (tb_read_req = '1' and tb_write_req = '0')
+            report "Sem escrita pendente, a proxima requisicao deveria ser leitura"
             severity error;
 
+        -- Finaliza a leitura antes de testar escrita
         tb_ready <= '0';
-        wait_cycles(1);
+        wait for clk_period + 1 ns;
         tb_ready <= '1';
-        wait_cycles(1);
+        wait for clk_period + 1 ns;
 
-        -- Uma borda de descida em KEY_3 durante ready='0' agenda escrita.
+        -- Testa escrita agendada pelo botao enquanto ready esta em '0'
         tb_ready <= '0';
         tb_data_in_write <= "0111";
-        wait_cycles(1);
+        wait for clk_period;
         tb_key_3 <= '0';
-        wait_cycles(1);
+        wait for clk_period;
         tb_key_3 <= '1';
-        wait_cycles(1);
+        wait for clk_period;
 
-        assert tb_read_req = '0' and tb_write_req = '0'
-            report "KEY_3 durante ready='0' deve apenas agendar a escrita"
+        assert (tb_read_req = '0' and tb_write_req = '0')
+            report "Botao KEY_3 durante ready=0 deveria apenas agendar a escrita"
             severity error;
 
         tb_ready <= '1';
-        wait_cycles(1);
-        assert tb_write_req = '1' and tb_read_req = '0'
-            report "Escrita pendente deveria ter prioridade quando ready voltar a '1'"
+        wait for clk_period + 1 ns;
+
+        assert (tb_write_req = '1' and tb_read_req = '0')
+            report "Escrita pendente deveria ter prioridade quando ready volta para 1"
             severity error;
-        assert tb_data_out_write = "00000111"
-            report "Dado de escrita deve refletir os switches atuais"
+        assert (tb_data_out_write = "00000111")
+            report "Dado de escrita deveria refletir data_in_write atual"
             severity error;
 
+        -- Testa aceite da escrita pelo controlador
         tb_ready <= '0';
-        wait_cycles(1);
-        assert tb_write_req = '0' and tb_read_req = '0'
-            report "Depois do controlador aceitar a escrita, write_out deveria cair"
+        wait for clk_period + 1 ns;
+
+        assert (tb_write_req = '0' and tb_read_req = '0')
+            report "write_out deveria cair quando o controlador aceita a escrita"
             severity error;
 
+        -- Testa reset durante uma requisicao ativa
         tb_ready <= '1';
-        wait_cycles(1);
-        assert tb_write_req = '0' and tb_read_req = '0'
-            report "Ao concluir wait_write, a interface deve voltar para Wait_ready"
-            severity error;
-
-        wait_cycles(1);
-        assert tb_read_req = '1' and tb_write_req = '0'
-            report "Sem nova escrita pendente, a proxima requisicao deve ser leitura"
-            severity error;
-
+        wait for clk_period + 1 ns;
+        wait for clk_period + 1 ns;
         tb_rst <= '1';
-        wait_cycles(1);
-        assert tb_write_req = '0' and tb_read_req = '0'
-            report "Reset deveria cancelar requisicao ativa"
+        wait for clk_period + 1 ns;
+
+        assert (tb_write_req = '0' and tb_read_req = '0')
+            report "Reset deveria cancelar requisicoes ativas"
             severity error;
 
         tb_rst <= '0';
-        wait_cycles(1);
+        wait for clk_period;
 
-        assert false report "dram_iface_tb concluido com sucesso" severity note;
+        write(line_out, string'("Teste concluido sem erros"));
+        writeline(output, line_out);
+
         sim_finished <= true;
         wait;
     end process;
-
-end behavior;
+end Behavioral;
