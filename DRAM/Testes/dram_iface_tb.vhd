@@ -95,6 +95,19 @@ begin
             report "Demais bits do endereco deveriam seguir o mapeamento atual"
             severity error;
 
+        -- Testa que SW9 altera address(25)
+        tb_address_in <= "001010"; -- 0x0A
+        wait for 5 ns;
+        assert (tb_address_out(25) = '0' and tb_address_out(23 downto 21) = "010" and tb_address_out(1 downto 0) = "10")
+            report "Endereco 0x0A deveria deixar address(25) em 0"
+            severity error;
+
+        tb_address_in <= "101010"; -- 0x2A
+        wait for 5 ns;
+        assert (tb_address_out(25) = '1' and tb_address_out(23 downto 21) = "010" and tb_address_out(1 downto 0) = "10")
+            report "Endereco 0x2A deveria deixar address(25) em 1"
+            severity error;
+
         -- Testa requisicao de leitura quando ready esta ativo e nao existe escrita pendente
         tb_ready <= '1';
         wait for clk_period + 1 ns;

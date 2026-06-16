@@ -39,7 +39,7 @@ begin
         data_out_adress(0)  <= address(0); 
         data_out_adress(1)  <= address(1); 
         
-        -- SW[8:6] -> address[23:21] (No enunciado fala 23:20, mas são 3 chaves para 4 posições. Usando 23:21)
+        -- SW[8:6] -> address[23:21]
         data_out_adress(21) <= address(2); 
         data_out_adress(22) <= address(3); 
         data_out_adress(23) <= address(4); 
@@ -120,5 +120,3 @@ begin
     end process;
 
 end behavior;
-
-

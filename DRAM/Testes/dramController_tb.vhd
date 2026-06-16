@@ -223,6 +223,26 @@ begin
         tb_req <= '0';
         tb_read_in <= '0';
 
+        wait until tb_state_debug = idle;
+        wait for 10 ns;
+
+        -- Testa que address(25), vindo do SW9, altera o banco
+        tb_write_in <= '1';
+        tb_read_in <= '0';
+        tb_address <= "10000000000000000000000000";
+        tb_data_in <= "00000001";
+        tb_req <= '1';
+
+        wait until tb_state_debug = act;
+        wait for 1 ns;
+        assert (tb_dram_ba = "10")
+            report "address(25) deveria selecionar o bit alto de DRAM_BA"
+            severity error;
+
+        wait until tb_state_debug = precharge;
+        tb_req <= '0';
+        tb_write_in <= '0';
+
         -- Testa refresh automatico
         wait until tb_state_debug = idle;
         wait until tb_state_debug = refresh for 15 us;

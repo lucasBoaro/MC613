@@ -151,6 +151,20 @@ begin
             report "HEX4 deveria mostrar C para SW(7 downto 4)=1100"
             severity error;
 
+        -- Testa endereco 0x2A com SW9 ligado
+        tb_switches <= "1010100110";
+        wait for 50 ns;
+
+        assert (tb_hex5 = "0100100")
+            report "HEX5 deveria mostrar 2 para SW(9 downto 8)=10"
+            severity error;
+        assert (tb_hex4 = "0001000")
+            report "HEX4 deveria mostrar A para SW(7 downto 4)=1010"
+            severity error;
+        assert (tb_hex0 = "0000010")
+            report "HEX0 deveria mostrar 6 para SW(3 downto 0)=0110"
+            severity error;
+
         wait for 150 ns;
 
         write(line_out, string'("A onda de CAS_N deveria pulsar em 0 para leitura"));

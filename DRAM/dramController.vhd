@@ -200,7 +200,8 @@ begin
                         DRAM_RAS_N <= '0';
                         DRAM_CAS_N <= '1';
                         DRAM_WE_N <= '1';
-                        DRAM_BA   <= save_addr(24 downto 23); -- 2 bits de banco
+                        DRAM_BA(1) <= save_addr(25); -- SW9
+                        DRAM_BA(0) <= save_addr(23); -- SW8
                         DRAM_ADDR <= save_addr(22 downto 10); -- 13 bits de linha
                 when read_st=>
                         DRAM_CS_N <= '0';
@@ -208,7 +209,8 @@ begin
                         DRAM_CAS_N <= '0';
                         DRAM_WE_N <= '1';
                         DRAM_ADDR(10) <= '0';
-                        DRAM_BA   <= save_addr(24 downto 23);
+                        DRAM_BA(1) <= save_addr(25);
+                        DRAM_BA(0) <= save_addr(23);
                         DRAM_ADDR(9 downto 0) <= save_addr(9 downto 0); -- 10 bits de coluna
                         DRAM_LDQM <= '0';
                         DRAM_UDQM <= '0';
@@ -218,7 +220,8 @@ begin
                         DRAM_CAS_N <= '0';
                         DRAM_WE_N <= '0';
                         DRAM_ADDR(10) <= '0';
-                        DRAM_BA   <= save_addr(24 downto 23);
+                        DRAM_BA(1) <= save_addr(25);
+                        DRAM_BA(0) <= save_addr(23);
                         DRAM_ADDR(9 downto 0) <= save_addr(9 downto 0); -- 10 bits de coluna
                         DRAM_DQ(7 downto 0)  <= input_data; 
                         DRAM_DQ(15 downto 8) <= (others => '0');
