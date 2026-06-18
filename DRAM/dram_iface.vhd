@@ -23,7 +23,7 @@ architecture behavior of dram_iface is
     signal state : state_type := Wait_ready;
 
     signal previous_key_3 : STD_LOGIC := '1'; 
-    signal write_pendindg : STD_LOGIC := '0';
+    signal write_pending : STD_LOGIC := '0';
 begin
 
     -- Bits 3 a 0 recebem os switches, bits 7 a 4 ficam em 0
@@ -53,21 +53,21 @@ begin
         if rising_edge(clk) then
             if rst = '1' then 
                 state <= Wait_ready;
-                write_pendindg <= '0';        
+                write_pending <= '0';        
                 previous_key_3 <= '1';        
             else
-                -- Lógica de detecção de borda no botão e agendamento de escrita
+                -- Lógica de detecção de borda no botão e espera para escrita
                 previous_key_3 <= key_3;
                 if previous_key_3 = '1' and key_3 = '0' then
-                    write_pendindg <= '1'; 
+                    write_pending <= '1'; 
                 end if;
                 
                 -- Máquina de Estados (Transições)
                 case state is
                     when Wait_ready =>
                         if ready = '1' then
-                            if write_pendindg = '1' then
-                                write_pendindg <= '0';
+                            if write_pending = '1' then
+                                write_pending <= '0';
                                 state <= Req_write;
                             else
                                 state <= Req_read;
@@ -75,7 +75,7 @@ begin
                         end if;
 
                     when Req_write =>
-                        if ready = '0' then -- Controlador aceitou o comando
+                        if ready = '0' then 
                             state <= wait_write; 
                         end if;
                     
@@ -85,7 +85,7 @@ begin
                         end if;
 
                     when Req_read =>
-                        if ready = '0' then -- Controlador aceitou o comando
+                        if ready = '0' then
                             state <= wait_read; 
                         end if;
                     
