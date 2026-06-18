@@ -160,11 +160,11 @@ begin
 		end if;
 	end process;
 
-	-- Determine the output based only on the current state
-	-- and the input (do not wait for a clock edge).
+	-- Associa os pinos aos valores corretos para
+	-- cada caso em específico.
 	process (state, save_addr, input_data)
 	begin
-        --Valores default - idle e qualquer estado "imprevisto" cai nesses valores
+        --Valores default 
         DRAM_CS_N  <= '0';
         DRAM_RAS_N <= '1';
         DRAM_CAS_N <= '1';
