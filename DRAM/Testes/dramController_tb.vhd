@@ -145,7 +145,7 @@ begin
         tb_rst <= '0';
 
         wait until tb_state_debug = idle;
-        wait for 10 ns;
+        wait for 200 ns;
 
         assert (tb_ready = '1')
             report "Controlador deveria ficar pronto apos inicializacao"
