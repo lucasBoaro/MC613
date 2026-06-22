@@ -1,0 +1,25 @@
+transcript on
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+vlib rtl_work
+vmap work rtl_work
+
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/pll.vho}
+vlib pll
+vmap pll pll
+vlog -vlog01compat -work pll +incdir+C:/Users/João/Documents/UNICAMP/MC613/DRAM/pll {C:/Users/João/Documents/UNICAMP/MC613/DRAM/pll/pll_0002.v}
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/dram_iface.vhd}
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/bin2hex.vhd}
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/dramController.vhd}
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/DRAM.vhd}
+
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/dram_iface.vhd}
+vcom -93 -work work {C:/Users/João/Documents/UNICAMP/MC613/DRAM/Testes/dram_iface_tb.vhd}
+
+vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -L pll -voptargs="+acc"  dram_iface_tb
+
+add wave *
+view structure
+view signals
+run -all

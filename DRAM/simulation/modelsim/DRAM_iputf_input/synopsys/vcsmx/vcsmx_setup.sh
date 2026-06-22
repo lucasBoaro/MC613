@@ -1,0 +1,3 @@
+
+
+vhdlan -xlrm "C:/MC613/DRAM/pll_sim/pll.vho"

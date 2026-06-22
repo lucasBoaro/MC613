@@ -1,0 +1,294 @@
+m255
+K4
+z2
+!s11e vcom 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/MC613/DRAM/simulation/modelsim
+Ebin2hex
+Z1 w1778862076
+Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z3 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
+!i122 2
+R0
+Z4 8C:/MC613/DRAM/bin2hex.vhd
+Z5 FC:/MC613/DRAM/bin2hex.vhd
+l0
+L7 1
+ViN28:TglO<jPjn>PMNc7U3
+!s100 d6QCD>AHGD2o=lND]Kc?>1
+Z6 OV;C;2020.1;71
+31
+Z7 !s110 1782143948
+!i10b 1
+Z8 !s108 1782143947.000000
+Z9 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/bin2hex.vhd|
+Z10 !s107 C:/MC613/DRAM/bin2hex.vhd|
+!i113 1
+Z11 o-93 -work work
+Z12 tExplicit 1 CvgOpt 0
+Artl
+R2
+R3
+Z13 DEx4 work 7 bin2hex 0 22 iN28:TglO<jPjn>PMNc7U3
+!i122 2
+l15
+L14 21
+VQRbYT;LOg?TR<Q_Z`=oZ11
+!s100 9ON6LX20HBGP5oQIW_V7W1
+R6
+31
+R7
+!i10b 1
+R8
+R9
+R10
+!i113 1
+R11
+R12
+Edram
+Z14 w1781302236
+Z15 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
+R2
+R3
+!i122 5
+R0
+Z16 8C:/MC613/DRAM/DRAM.vhd
+Z17 FC:/MC613/DRAM/DRAM.vhd
+l0
+L6 1
+V?R9?0EEQ:BL0Nk?YPVDaQ0
+!s100 c2BFh@KG?9b3UZ2`_;cik3
+R6
+31
+R7
+!i10b 1
+Z18 !s108 1782143948.000000
+Z19 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/DRAM.vhd|
+Z20 !s107 C:/MC613/DRAM/DRAM.vhd|
+!i113 1
+R11
+R12
+Abehavioral
+Z21 DPx4 work 8 dram_pkg 0 22 J`j:fo]mgMQ7eAV9BQ_l`0
+Z22 DEx4 work 14 dramcontroller 0 22 QhfTFW?z9c@G]NJ`44[lG0
+R13
+Z23 DEx4 work 10 dram_iface 0 22 an1L^hhD2=4iA58]L;T]L2
+R15
+R2
+R3
+DEx4 work 4 dram 0 22 ?R9?0EEQ:BL0Nk?YPVDaQ0
+!i122 5
+l60
+L32 107
+VjK;55TPVG9Eha9S`GMF1e0
+!s100 C[gd5;?NlY?BLiHN=6hi<1
+R6
+31
+R7
+!i10b 1
+R18
+R19
+R20
+!i113 1
+R11
+R12
+Edram_iface
+Z24 w1782141169
+R2
+R3
+!i122 1
+R0
+Z25 8C:/MC613/DRAM/dram_iface.vhd
+Z26 FC:/MC613/DRAM/dram_iface.vhd
+l0
+L4 1
+Van1L^hhD2=4iA58]L;T]L2
+!s100 S1JlMiz2Ob3aFd;_DOLdM1
+R6
+31
+Z27 !s110 1782143947
+!i10b 1
+R8
+Z28 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dram_iface.vhd|
+Z29 !s107 C:/MC613/DRAM/dram_iface.vhd|
+!i113 1
+R11
+R12
+Abehavior
+R2
+R3
+R23
+!i122 1
+l27
+L19 104
+VeChXP4=TIc8_bcQ;TXQ9P2
+!s100 We1R>oY7Ce7aaU`4OE?`Q3
+R6
+31
+R27
+!i10b 1
+R8
+R28
+R29
+!i113 1
+R11
+R12
+Pdram_pkg
+R15
+R2
+R3
+!i122 3
+R24
+R0
+Z30 8C:/MC613/DRAM/dramController.vhd
+Z31 FC:/MC613/DRAM/dramController.vhd
+l0
+L5 1
+VJ`j:fo]mgMQ7eAV9BQ_l`0
+!s100 Lel=?;;Wc7Ma`W[9N0F`12
+R6
+31
+R7
+!i10b 1
+R18
+Z32 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dramController.vhd|
+Z33 !s107 C:/MC613/DRAM/dramController.vhd|
+!i113 1
+R11
+R12
+Edram_tb
+Z34 w1781636807
+Z35 DPx4 ieee 16 std_logic_textio 0 22 ^l:n6VFdg74Q?CKDhjD]D3
+R15
+R2
+R3
+!i122 6
+R0
+Z36 8C:/MC613/DRAM/Testes/DRAM_tb.vhd
+Z37 FC:/MC613/DRAM/Testes/DRAM_tb.vhd
+l0
+L7 1
+VH46YEYmASo9Po7fm[kSC?0
+!s100 <BETSNmL`HjF@0C2ngE381
+R6
+31
+R7
+!i10b 1
+R18
+Z38 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/Testes/DRAM_tb.vhd|
+!s107 C:/MC613/DRAM/Testes/DRAM_tb.vhd|
+!i113 1
+R11
+R12
+Abehavioral
+R35
+R15
+R2
+R3
+DEx4 work 7 dram_tb 0 22 H46YEYmASo9Po7fm[kSC?0
+!i122 6
+l66
+L10 172
+VW]2_m?OLZU=e<9JSD];5;0
+!s100 =O378aeh7N1RXgofaXZ>d2
+R6
+31
+R7
+!i10b 1
+R18
+R38
+Z39 !s107 C:/MC613/DRAM/Testes/DRAM_tb.vhd|
+!i113 1
+R11
+R12
+Edramcontroller
+R24
+R21
+R15
+R2
+R3
+!i122 3
+R0
+R30
+R31
+l0
+L15 1
+VQhfTFW?z9c@G]NJ`44[lG0
+!s100 715zS<>P40LOEf_YBGNIg2
+R6
+31
+R7
+!i10b 1
+R18
+R32
+R33
+!i113 1
+R11
+R12
+Abehavior
+R21
+R15
+R2
+R3
+R22
+!i122 3
+l59
+L42 237
+VK7]<_U7ID33g@BgVBooz03
+!s100 i>88DeRPDWGKQF=TQ>j^91
+R6
+31
+R7
+!i10b 1
+R18
+R32
+R33
+!i113 1
+R11
+R12
+Epll
+Z40 w1782143460
+R2
+R3
+Z41 DPx12 altera_lnsim 23 altera_lnsim_components 0 22 3dzZ?YU_4FC5UU0cTXRET1
+!i122 0
+R0
+Z42 8C:/MC613/DRAM/pll_sim/pll.vho
+Z43 FC:/MC613/DRAM/pll_sim/pll.vho
+l0
+L34 1
+VRlJhOMYB;3NRB]LCM;R3Y2
+!s100 AKFiV@a_II`_PNV<SY87]2
+R6
+32
+R27
+!i10b 1
+R8
+Z44 !s90 -reportprogress|300|C:/MC613/DRAM/pll_sim/pll.vho|
+Z45 !s107 C:/MC613/DRAM/pll_sim/pll.vho|
+!i113 1
+R12
+Artl
+R2
+R3
+R41
+DEx4 work 3 pll 0 22 RlJhOMYB;3NRB]LCM;R3Y2
+!i122 0
+l52
+L45 263
+VenY5IQQcU3geKVZTPXI3O3
+!s100 2VWfeB=eHK5jAdYW`8i@`1
+R6
+32
+R27
+!i10b 1
+R8
+R44
+R45
+!i113 1
+R12

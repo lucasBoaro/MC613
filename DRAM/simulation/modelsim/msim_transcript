@@ -1,0 +1,168 @@
+# Reading pref.tcl
+# do DRAM_run_msim_rtl_vhdl.do
+# if ![file isdirectory DRAM_iputf_libs] {
+# 	file mkdir DRAM_iputf_libs
+# }
+# 
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/intelFPGA_lite/20.1/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+###### Libraries for IPUTF cores 
+###### End libraries for IPUTF cores 
+###### MIF file copy and HDL compilation commands for IPUTF cores 
+# 
+# 
+# vcom "C:/MC613/DRAM/pll_sim/pll.vho"
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:07 on Jun 22,2026
+# vcom -reportprogress 300 C:/MC613/DRAM/pll_sim/pll.vho 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package altera_lnsim_components
+# -- Compiling entity pll
+# -- Compiling architecture RTL of pll
+# End time: 12:59:07 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vcom -93 -work work {C:/MC613/DRAM/dram_iface.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:07 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/dram_iface.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity dram_iface
+# -- Compiling architecture behavior of dram_iface
+# End time: 12:59:07 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/MC613/DRAM/bin2hex.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:07 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/bin2hex.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity bin2hex
+# -- Compiling architecture rtl of bin2hex
+# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/MC613/DRAM/dramController.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:08 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/dramController.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling package dram_pkg
+# -- Loading package dram_pkg
+# -- Compiling entity dramController
+# -- Compiling architecture behavior of dramController
+# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/MC613/DRAM/DRAM.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:08 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/DRAM.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity DRAM
+# -- Compiling architecture Behavioral of DRAM
+# -- Loading entity dram_iface
+# -- Loading entity bin2hex
+# -- Loading package dram_pkg
+# -- Loading entity dramController
+# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vcom -93 -work work {C:/MC613/DRAM/DRAM.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:08 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/DRAM.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity DRAM
+# -- Compiling architecture Behavioral of DRAM
+# -- Loading entity dram_iface
+# -- Loading entity bin2hex
+# -- Loading package dram_pkg
+# -- Loading entity dramController
+# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vcom -93 -work work {C:/MC613/DRAM/Testes/DRAM_tb.vhd}
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 12:59:08 on Jun 22,2026
+# vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/Testes/DRAM_tb.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package std_logic_textio
+# -- Compiling entity DRAM_tb
+# -- Compiling architecture Behavioral of DRAM_tb
+# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -voptargs="+acc"  DRAM_tb
+# vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -voptargs=""+acc"" DRAM_tb 
+# Start time: 12:59:08 on Jun 22,2026
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading ieee.std_logic_textio(body)
+# Loading work.dram_tb(behavioral)
+# Loading work.dram_pkg
+# Loading work.dram(behavioral)
+# Loading altera_lnsim.altera_lnsim_components
+# Loading work.pll(rtl)
+# Loading sv_std.std
+# Loading altera_lnsim.altera_lnsim_functions
+# Loading altera_lnsim.altera_pll
+# Loading altera_lnsim.dps_extra_kick
+# Loading altera_lnsim.dprio_init
+# Loading altera_lnsim.altera_generic_pll_functions
+# Loading altera_lnsim.generic_pll
+# Loading work.dram_iface(behavior)
+# Loading work.bin2hex(rtl)
+# Loading work.dramcontroller(behavior)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# Teste DRAM top-level...
+# Info: =================================================
+# Info:           Generic PLL Summary
+# Info: =================================================
+# Time scale of (dram_tb.uut.instanciaPLL.pll_altera_pll_altera_pll_i_1098.new_model.gpll.no_need_to_gen) is  1ps /  1ps
+# Info: hierarchical_name = dram_tb.uut.instanciaPLL.pll_altera_pll_altera_pll_i_1098.new_model.gpll.no_need_to_gen
+# Info: reference_clock_frequency = 50.0 MHz
+# Info: output_clock_frequency = 143 MHZ
+# Info: phase_shift = 0 ps
+# Info: duty_cycle = 50
+# Info: sim_additional_refclk_cycles_to_lock = 0
+# Info: output_clock_high_period = 3496.503497
+# Info: output_clock_low_period = 3496.503497
+# Aguardando inicializacao da SDRAM
+# As ondas de WE_N e CAS_N deveriam pulsar em 0 para escrita
+# A onda de CAS_N deveria pulsar em 0 para leitura
+# Teste concluido sem erros
+# Info: hierarchical_name = dram_tb.uut.instanciaPLL.pll_altera_pll_altera_pll_i_1098.new_model.gpll.UI
+# Warning: The frequency of the reference clock signal differs from the specified frequency (50.0 MHz).
+# End time: 13:03:29 on Jun 22,2026, Elapsed time: 0:04:21
+# Errors: 0, Warnings: 0

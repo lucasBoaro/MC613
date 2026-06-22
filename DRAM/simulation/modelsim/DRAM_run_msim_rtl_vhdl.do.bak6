@@ -1,0 +1,32 @@
+transcript on
+if ![file isdirectory DRAM_iputf_libs] {
+	file mkdir DRAM_iputf_libs
+}
+
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+vlib rtl_work
+vmap work rtl_work
+
+###### Libraries for IPUTF cores 
+###### End libraries for IPUTF cores 
+###### MIF file copy and HDL compilation commands for IPUTF cores 
+
+
+vcom "C:/MC613/DRAM/pll_sim/pll.vho"
+
+vcom -93 -work work {C:/MC613/DRAM/dram_iface.vhd}
+vcom -93 -work work {C:/MC613/DRAM/bin2hex.vhd}
+vcom -93 -work work {C:/MC613/DRAM/dramController.vhd}
+vcom -93 -work work {C:/MC613/DRAM/DRAM.vhd}
+
+vcom -93 -work work {C:/MC613/DRAM/dramController.vhd}
+vcom -93 -work work {C:/MC613/DRAM/Testes/dramController_tb.vhd}
+
+vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -voptargs="+acc"  dramController_tb
+
+add wave *
+view structure
+view signals
+run -all
