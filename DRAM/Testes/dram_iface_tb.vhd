@@ -131,7 +131,7 @@ begin
 
         -- Testa retorno para estado de espera e nova leitura automatica
         tb_ready <= '1';
-        wait for clk_period + 1 ns;
+        wait for clk_period;
 
         assert (tb_read_req = '0' and tb_write_req = '0')
             report "A interface deveria voltar para o estado de espera apos a leitura"

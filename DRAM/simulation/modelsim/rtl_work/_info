@@ -23,9 +23,9 @@ ViN28:TglO<jPjn>PMNc7U3
 !s100 d6QCD>AHGD2o=lND]Kc?>1
 Z6 OV;C;2020.1;71
 31
-Z7 !s110 1782143948
+Z7 !s110 1782481566
 !i10b 1
-Z8 !s108 1782143947.000000
+Z8 !s108 1782481566.000000
 Z9 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/bin2hex.vhd|
 Z10 !s107 C:/MC613/DRAM/bin2hex.vhd|
 !i113 1
@@ -67,17 +67,17 @@ R6
 31
 R7
 !i10b 1
-Z18 !s108 1782143948.000000
-Z19 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/DRAM.vhd|
-Z20 !s107 C:/MC613/DRAM/DRAM.vhd|
+R8
+Z18 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/DRAM.vhd|
+Z19 !s107 C:/MC613/DRAM/DRAM.vhd|
 !i113 1
 R11
 R12
 Abehavioral
-Z21 DPx4 work 8 dram_pkg 0 22 J`j:fo]mgMQ7eAV9BQ_l`0
-Z22 DEx4 work 14 dramcontroller 0 22 QhfTFW?z9c@G]NJ`44[lG0
+Z20 DPx4 work 8 dram_pkg 0 22 J`j:fo]mgMQ7eAV9BQ_l`0
+Z21 DEx4 work 14 dramcontroller 0 22 QhfTFW?z9c@G]NJ`44[lG0
 R13
-Z23 DEx4 work 10 dram_iface 0 22 an1L^hhD2=4iA58]L;T]L2
+Z22 DEx4 work 10 dram_iface 0 22 an1L^hhD2=4iA58]L;T]L2
 R15
 R2
 R3
@@ -91,38 +91,38 @@ R6
 31
 R7
 !i10b 1
+R8
 R18
 R19
-R20
 !i113 1
 R11
 R12
 Edram_iface
-Z24 w1782141169
+Z23 w1782141169
 R2
 R3
 !i122 1
 R0
-Z25 8C:/MC613/DRAM/dram_iface.vhd
-Z26 FC:/MC613/DRAM/dram_iface.vhd
+Z24 8C:/MC613/DRAM/dram_iface.vhd
+Z25 FC:/MC613/DRAM/dram_iface.vhd
 l0
 L4 1
 Van1L^hhD2=4iA58]L;T]L2
 !s100 S1JlMiz2Ob3aFd;_DOLdM1
 R6
 31
-Z27 !s110 1782143947
+R7
 !i10b 1
-R8
-Z28 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dram_iface.vhd|
-Z29 !s107 C:/MC613/DRAM/dram_iface.vhd|
+Z26 !s108 1782481565.000000
+Z27 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dram_iface.vhd|
+Z28 !s107 C:/MC613/DRAM/dram_iface.vhd|
 !i113 1
 R11
 R12
 Abehavior
 R2
 R3
-R23
+R22
 !i122 1
 l27
 L19 104
@@ -130,11 +130,11 @@ VeChXP4=TIc8_bcQ;TXQ9P2
 !s100 We1R>oY7Ce7aaU`4OE?`Q3
 R6
 31
-R27
+R7
 !i10b 1
-R8
+R26
+R27
 R28
-R29
 !i113 1
 R11
 R12
@@ -143,10 +143,10 @@ R15
 R2
 R3
 !i122 3
-R24
+R23
 R0
-Z30 8C:/MC613/DRAM/dramController.vhd
-Z31 FC:/MC613/DRAM/dramController.vhd
+Z29 8C:/MC613/DRAM/dramController.vhd
+Z30 FC:/MC613/DRAM/dramController.vhd
 l0
 L5 1
 VJ`j:fo]mgMQ7eAV9BQ_l`0
@@ -155,38 +155,38 @@ R6
 31
 R7
 !i10b 1
-R18
-Z32 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dramController.vhd|
-Z33 !s107 C:/MC613/DRAM/dramController.vhd|
+R8
+Z31 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/dramController.vhd|
+Z32 !s107 C:/MC613/DRAM/dramController.vhd|
 !i113 1
 R11
 R12
 Edram_tb
-Z34 w1781636807
-Z35 DPx4 ieee 16 std_logic_textio 0 22 ^l:n6VFdg74Q?CKDhjD]D3
+Z33 w1781636807
+Z34 DPx4 ieee 16 std_logic_textio 0 22 ^l:n6VFdg74Q?CKDhjD]D3
 R15
 R2
 R3
 !i122 6
 R0
-Z36 8C:/MC613/DRAM/Testes/DRAM_tb.vhd
-Z37 FC:/MC613/DRAM/Testes/DRAM_tb.vhd
+Z35 8C:/MC613/DRAM/Testes/DRAM_tb.vhd
+Z36 FC:/MC613/DRAM/Testes/DRAM_tb.vhd
 l0
 L7 1
 VH46YEYmASo9Po7fm[kSC?0
 !s100 <BETSNmL`HjF@0C2ngE381
 R6
 31
-R7
+Z37 !s110 1782481567
 !i10b 1
-R18
+R8
 Z38 !s90 -reportprogress|300|-93|-work|work|C:/MC613/DRAM/Testes/DRAM_tb.vhd|
 !s107 C:/MC613/DRAM/Testes/DRAM_tb.vhd|
 !i113 1
 R11
 R12
 Abehavioral
-R35
+R34
 R15
 R2
 R3
@@ -198,24 +198,24 @@ VW]2_m?OLZU=e<9JSD];5;0
 !s100 =O378aeh7N1RXgofaXZ>d2
 R6
 31
-R7
+R37
 !i10b 1
-R18
+R8
 R38
 Z39 !s107 C:/MC613/DRAM/Testes/DRAM_tb.vhd|
 !i113 1
 R11
 R12
 Edramcontroller
-R24
-R21
+R23
+R20
 R15
 R2
 R3
 !i122 3
 R0
+R29
 R30
-R31
 l0
 L15 1
 VQhfTFW?z9c@G]NJ`44[lG0
@@ -224,18 +224,18 @@ R6
 31
 R7
 !i10b 1
-R18
+R8
+R31
 R32
-R33
 !i113 1
 R11
 R12
 Abehavior
-R21
+R20
 R15
 R2
 R3
-R22
+R21
 !i122 3
 l59
 L42 237
@@ -245,9 +245,9 @@ R6
 31
 R7
 !i10b 1
-R18
+R8
+R31
 R32
-R33
 !i113 1
 R11
 R12
@@ -266,11 +266,11 @@ VRlJhOMYB;3NRB]LCM;R3Y2
 !s100 AKFiV@a_II`_PNV<SY87]2
 R6
 32
-R27
+Z44 !s110 1782481565
 !i10b 1
-R8
-Z44 !s90 -reportprogress|300|C:/MC613/DRAM/pll_sim/pll.vho|
-Z45 !s107 C:/MC613/DRAM/pll_sim/pll.vho|
+R26
+Z45 !s90 -reportprogress|300|C:/MC613/DRAM/pll_sim/pll.vho|
+Z46 !s107 C:/MC613/DRAM/pll_sim/pll.vho|
 !i113 1
 R12
 Artl
@@ -285,10 +285,10 @@ VenY5IQQcU3geKVZTPXI3O3
 !s100 2VWfeB=eHK5jAdYW`8i@`1
 R6
 32
-R27
-!i10b 1
-R8
 R44
+!i10b 1
+R26
 R45
+R46
 !i113 1
 R12

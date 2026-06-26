@@ -21,7 +21,7 @@
 # 
 # vcom "C:/MC613/DRAM/pll_sim/pll.vho"
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:07 on Jun 22,2026
+# Start time: 10:46:05 on Jun 26,2026
 # vcom -reportprogress 300 C:/MC613/DRAM/pll_sim/pll.vho 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -29,34 +29,34 @@
 # -- Loading package altera_lnsim_components
 # -- Compiling entity pll
 # -- Compiling architecture RTL of pll
-# End time: 12:59:07 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:05 on Jun 26,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # 
 # vcom -93 -work work {C:/MC613/DRAM/dram_iface.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:07 on Jun 22,2026
+# Start time: 10:46:05 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/dram_iface.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Compiling entity dram_iface
 # -- Compiling architecture behavior of dram_iface
-# End time: 12:59:07 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:06 on Jun 26,2026, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 0
 # vcom -93 -work work {C:/MC613/DRAM/bin2hex.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:07 on Jun 22,2026
+# Start time: 10:46:06 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/bin2hex.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
 # -- Loading package std_logic_1164
 # -- Compiling entity bin2hex
 # -- Compiling architecture rtl of bin2hex
-# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:01
+# End time: 10:46:06 on Jun 26,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vcom -93 -work work {C:/MC613/DRAM/dramController.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:08 on Jun 22,2026
+# Start time: 10:46:06 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/dramController.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -66,11 +66,11 @@
 # -- Loading package dram_pkg
 # -- Compiling entity dramController
 # -- Compiling architecture behavior of dramController
-# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:06 on Jun 26,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vcom -93 -work work {C:/MC613/DRAM/DRAM.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:08 on Jun 22,2026
+# Start time: 10:46:06 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/DRAM.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -82,12 +82,12 @@
 # -- Loading entity bin2hex
 # -- Loading package dram_pkg
 # -- Loading entity dramController
-# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:06 on Jun 26,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # 
 # vcom -93 -work work {C:/MC613/DRAM/DRAM.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:08 on Jun 22,2026
+# Start time: 10:46:06 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/DRAM.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -99,11 +99,11 @@
 # -- Loading entity bin2hex
 # -- Loading package dram_pkg
 # -- Loading entity dramController
-# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:06 on Jun 26,2026, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vcom -93 -work work {C:/MC613/DRAM/Testes/DRAM_tb.vhd}
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 12:59:08 on Jun 22,2026
+# Start time: 10:46:06 on Jun 26,2026
 # vcom -reportprogress 300 -93 -work work C:/MC613/DRAM/Testes/DRAM_tb.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -112,12 +112,12 @@
 # -- Loading package std_logic_textio
 # -- Compiling entity DRAM_tb
 # -- Compiling architecture Behavioral of DRAM_tb
-# End time: 12:59:08 on Jun 22,2026, Elapsed time: 0:00:00
+# End time: 10:46:07 on Jun 26,2026, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 0
 # 
 # vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -voptargs="+acc"  DRAM_tb
 # vsim -t 1ps -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L cyclonev -L rtl_work -L work -voptargs=""+acc"" DRAM_tb 
-# Start time: 12:59:08 on Jun 22,2026
+# Start time: 10:46:07 on Jun 26,2026
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
@@ -164,5 +164,5 @@
 # Teste concluido sem erros
 # Info: hierarchical_name = dram_tb.uut.instanciaPLL.pll_altera_pll_altera_pll_i_1098.new_model.gpll.UI
 # Warning: The frequency of the reference clock signal differs from the specified frequency (50.0 MHz).
-# End time: 13:03:29 on Jun 22,2026, Elapsed time: 0:04:21
+# End time: 10:50:59 on Jun 26,2026, Elapsed time: 0:04:52
 # Errors: 0, Warnings: 0
